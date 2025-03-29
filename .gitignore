@@ -1,0 +1,9 @@
+/alembic.ini
+/warehouse_bot.db
+/bot/warehouse_bot.db
+/.venv/
+__pycache__
+*__pycache__
+.evn
+alembic
+.idea

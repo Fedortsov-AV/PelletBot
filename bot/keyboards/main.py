@@ -10,6 +10,9 @@ def get_main_keyboard(role: str) -> ReplyKeyboardMarkup:
     if role != "anonymous":
         buttons.append([KeyboardButton(text="Приходы")])
 
+    if role != "anonymous":
+        buttons.append([KeyboardButton(text="🚚 Отгрузка")])
+
     # Кнопка "Фасовка" доступна всем, кроме анонимов
     if role != "anonymous":
         buttons.append([KeyboardButton(text="📦 Фасовка")])

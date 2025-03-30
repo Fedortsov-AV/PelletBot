@@ -13,3 +13,4 @@ class User(Base):
     arrivals = relationship("Arrival", back_populates="user")
     expenses = relationship("Expense", back_populates="user")
     packagings = relationship("Packaging", back_populates="user")
+    shipments = relationship("Shipment", back_populates="user")  # Добавлена связь с отгрузками

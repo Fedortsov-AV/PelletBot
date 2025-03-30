@@ -9,11 +9,11 @@ from bot.keyboards.arrival import (
 )
 from bot.models.arrival import Arrival
 from bot.models.database import async_session
-from bot.models.storage import Storage
 from bot.fsm.arrival import ArrivalState
 from bot.services.arrival import (
-    get_arrivals_for_month, delete_arrival, update_arrival_amount
+    get_arrivals_for_month, delete_arrival
 )
+from bot.services.storage import get_stock, update_stock_arrival, update_stock_packaging
 from bot.services.user_service import get_user
 
 router = Router()
@@ -24,7 +24,6 @@ async def show_arrival_menu(message: Message):
     """Показать меню приходов."""
     async with async_session() as session:
         user = await get_user(session, message.from_user.id)
-
         if not user:
             await message.answer("❌ У вас нет доступа к функции 'Приходы'.")
             return
@@ -70,6 +69,7 @@ async def set_arrival_amount(message: Message, state: FSMContext):
 async def confirm_arrival(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Подтверждение добавления прихода."""
     data = await state.get_data()
+
     async with session.begin():  # Атомарная операция
         arrival = Arrival(
             type=data["type"],
@@ -79,13 +79,8 @@ async def confirm_arrival(callback: CallbackQuery, state: FSMContext, session: A
         )
         session.add(arrival)
 
-        # Обновление остатков на складе
-        storage = await session.get(Storage, data["type"])
-        if not storage:
-            storage = Storage(type=data["type"], amount=0)
-            session.add(storage)
-
-        storage.amount += data["amount"]
+        # Вызов обновления склада с передачей всех аргументов
+        await update_stock_arrival(session,  data["amount"])
 
     await callback.message.edit_text("✅ Приход успешно добавлен!")
     await state.clear()
@@ -135,10 +130,7 @@ async def delete_arrival_handler(callback: CallbackQuery, session: AsyncSession)
             return
 
         # Уменьшаем количество на складе
-        storage = await session.get(Storage, arrival.type)
-        if storage:
-            storage.amount -= arrival.amount
-            storage.amount = max(0, storage.amount)  # Количество не может быть отрицательным
+        await update_stock_packaging(session, arrival.amount, 0, 0)  # Просто уменьшаем пеллеты
 
         await session.delete(arrival)
 
@@ -172,10 +164,9 @@ async def set_arrival_amount_edit_handler(message: Message, state: FSMContext, s
             await message.answer("❌ Приход не найден.")
             return
 
-        # Обновляем склад
-        storage = await session.get(Storage, arrival.type)
-        if storage:
-            storage.amount += new_amount - arrival.amount  # Корректируем остаток на складе
+        # Корректируем склад
+        delta = new_amount - arrival.amount
+        await update_stock_arrival(session, delta)  # Изменяем склад
 
         arrival.amount = new_amount
 

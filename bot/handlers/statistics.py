@@ -118,3 +118,9 @@ async def all_expenses_statistics(callback: CallbackQuery, session: AsyncSession
     text = "\n".join([f"👤 {item['user']}: 💰 {item['amount']} руб. ➝ {item['purpose']}" for item in expenses])
     await callback.message.answer(f"📜 *Список всех расходов:*\n{text}", parse_mode="Markdown")
 
+# Хендлер для кнопки "Закрыть меню"
+@router.callback_query(F.data == "statistics:close")
+async def close_shipment_menu(callback_query: CallbackQuery):
+    """Закрытие меню отгрузки"""
+    await callback_query.message.delete()
+    await callback_query.answer()

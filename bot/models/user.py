@@ -12,3 +12,4 @@ class User(Base):
     role = Column(String, default="anonymous")  # Роли: admin, manager, user, anonymous
     arrivals = relationship("Arrival", back_populates="user")
     expenses = relationship("Expense", back_populates="user")
+    packagings = relationship("Packaging", back_populates="user")

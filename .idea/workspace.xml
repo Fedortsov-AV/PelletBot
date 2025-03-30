@@ -4,40 +4,29 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="24800e9a-eebd-4dcb-84e9-0bf391ca5d09" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/PeletBot.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/fsm/arrival.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/handlers/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/handlers/admin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/handlers/arrival.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/handlers/info.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/handlers/start.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/keyboards/admin.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/keyboards/arrival.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/keyboards/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/keyboards/roles.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/keyboards/user.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/keyboards/users.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/main.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/middlewares/db.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/models/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/models/arrival.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/models/base.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/models/database.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/models/expense.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/models/models.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/models/role.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/models/user.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/services/arrival.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/services/auth.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/services/database.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/services/role_service.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/services/user_service.py" afterDir="false" />
+    <list default="true" id="24800e9a-eebd-4dcb-84e9-0bf391ca5d09" name="Changes" comment="Работает уплавление персоналом и приходы">
+      <change afterPath="$PROJECT_DIR$/bot/fsm/expense.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/fsm/packaging.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/fsm/statistics.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/handlers/expense.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/handlers/packaging.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/handlers/statistics.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/keyboards/expense.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/keyboards/packaging.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/keyboards/statistics.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/models/packaging.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/models/storage.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/services/expense.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/services/packaging_service.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/services/statistics.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/services/storage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/handlers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/handlers/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/arrival.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/models/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/services/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/services/arrival.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -54,6 +43,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "Fedortsov-AV"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/Fedortsov-AV/PelletBot.git",
+    "accountId": "c721ed5b-ad7b-40e8-8027-fda10ef4265e"
+  }
+}]]></component>
   <component name="ProjectColorInfo"><![CDATA[{
   "associatedIndex": 6
 }]]></component>
@@ -116,6 +117,27 @@
       <option name="presentableId" value="Default" />
       <updated>1743228908318</updated>
     </task>
+    <task id="LOCAL-00001" summary="Работает уплавление персоналом и приходы">
+      <option name="closed" value="true" />
+      <created>1743244488699</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1743244488699</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Работает уплавление персоналом и приходы">
+      <option name="closed" value="true" />
+      <created>1743244665613</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1743244665613</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Работает уплавление персоналом и приходы" />
+    <option name="LAST_COMMIT_MESSAGE" value="Работает уплавление персоналом и приходы" />
   </component>
 </project>

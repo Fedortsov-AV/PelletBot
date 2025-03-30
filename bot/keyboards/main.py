@@ -12,11 +12,11 @@ def get_main_keyboard(role: str) -> ReplyKeyboardMarkup:
 
     # Кнопка "Фасовка" доступна всем, кроме анонимов
     if role != "anonymous":
-        buttons.append([KeyboardButton(text="Фасовка")])
+        buttons.append([KeyboardButton(text="📦 Фасовка")])
 
     # Кнопки для администраторов и менеджеров
     if role in ["admin", "manager"]:
-        buttons.append([KeyboardButton(text="Расходы")])
+        buttons.append([KeyboardButton(text="💸 Расходы")])
         buttons.append([KeyboardButton(text="Заявки")])
 
     # Кнопка "Управление ролями" доступна только для администратора
@@ -25,7 +25,7 @@ def get_main_keyboard(role: str) -> ReplyKeyboardMarkup:
 
     # Кнопка "Статистика" доступна только для администратора и менеджера
     if role in ["admin", "manager"]:
-        buttons.append([KeyboardButton(text="Статистика")])
+        buttons.append([KeyboardButton(text="📊 Статистика", callback_data="statistics")])
 
     # Оператор не должен видеть кнопку "Приходы за месяц"
     if role == "operator":

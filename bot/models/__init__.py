@@ -7,6 +7,8 @@ from bot.models.expense import Expense
 from bot.models.packaging import Packaging
 from bot.models.storage import Storage
 from bot.models.shipment import Shipment
+from bot.models.product import Product
+from bot.models.rawProduct import RawProduct
 
 async def create_tables():
     async with engine.begin() as conn:

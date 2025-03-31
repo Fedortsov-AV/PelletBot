@@ -4,9 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="24800e9a-eebd-4dcb-84e9-0bf391ca5d09" name="Changes" comment="Add table product">
+    <list default="true" id="24800e9a-eebd-4dcb-84e9-0bf391ca5d09" name="Changes" comment="relationship with product">
+      <change afterPath="$PROJECT_DIR$/bot/models/rawProduct.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/models/product.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/product.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/models/storage.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/storage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/models/shipment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/shipment.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -150,7 +152,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743423954730</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="relationship with product">
+      <option name="closed" value="true" />
+      <created>1743424848724</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1743424848724</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -170,6 +180,7 @@
     <MESSAGE value="Работает добавлен склад, добавление отгрузок" />
     <MESSAGE value="Изменена таблица &quot;фасовка&quot;" />
     <MESSAGE value="Add table product" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add table product" />
+    <MESSAGE value="relationship with product" />
+    <option name="LAST_COMMIT_MESSAGE" value="relationship with product" />
   </component>
 </project>

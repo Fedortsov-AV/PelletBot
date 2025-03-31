@@ -31,9 +31,9 @@ async def show_arrival_menu(message: Message):
 
 
 @router.callback_query(F.data == "add_arrival")
-async def add_arrival_handler(callback: CallbackQuery, state: FSMContext):
+async def add_arrival_handler(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Начать процесс добавления прихода."""
-    await callback.message.answer("Выберите тип продукции:", reply_markup=arrival_types_keyboard())
+    await callback.message.answer("Выберите тип продукции:", reply_markup=arrival_types_keyboard(session))
     await state.set_state(ArrivalState.type)
 
 

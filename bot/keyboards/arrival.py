@@ -1,10 +1,13 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from bot.services.arrival import get_raw_product_names
 
 
-def arrival_types_keyboard():
+def arrival_types_keyboard(session: AsyncSession):
     builder = InlineKeyboardBuilder()
-    products = ["Пеллеты 6мм", "Пеллеты 8мм"]
+    products = get_raw_product_names(session)
 
     for product in products:
         builder.button(text=product, callback_data=f"arrival_type:{product}")

@@ -8,6 +8,9 @@ from bot.models.database import async_session
 from bot.models.arrival import Arrival
 from datetime import datetime
 
+from bot.models.rawProduct import RawProduct
+
+
 async def process_arrival(message: Message):
     """Обработка прихода без запроса комментария."""
     async with async_session() as session:
@@ -71,3 +74,8 @@ async def update_arrival_amount(session: AsyncSession, arrival_id: int, new_amou
         arrival.amount = new_amount
         await session.commit()
     return arrival
+
+async def get_raw_product_names(session: AsyncSession):
+    """Получить список всех наименований raw_products из БД"""
+    result = await session.execute(select(RawProduct.name))
+    return [row[0] for row in result.all()]

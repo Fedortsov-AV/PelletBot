@@ -19,6 +19,8 @@ def statistics_keyboard() -> InlineKeyboardMarkup:
 
     # Третья строка (2 кнопки)
     buttons.append([InlineKeyboardButton(text="📜 Список всех расходов", callback_data="statistics:expenses_all")])
+    buttons.append([InlineKeyboardButton(text="🚚 📆 Сумма отгрузок за текущий месяц", callback_data="statistics:shipments_month")])
+    buttons.append([InlineKeyboardButton(text="🚚 📆 Сумма отгрузок за период", callback_data="statistics:shipments_period")])
     buttons.append([InlineKeyboardButton(text="❌ Закрыть меню", callback_data="statistics:close")])
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)

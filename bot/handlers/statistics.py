@@ -6,6 +6,8 @@ from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.keyboards.statistics import statistics_keyboard
+from bot.models.database import async_session
+from bot.services.shipment import get_shipments_for_current_month, get_shipments_for_period
 from bot.services.statistics import (
 
     get_packed_month,
@@ -53,7 +55,7 @@ async def packed_month_statistics(callback: CallbackQuery, session: AsyncSession
 
 # Расфасовано за период
 @router.callback_query(F.data == "statistics:packed_period")
-async def packed_period_statistics(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
+async def packed_period_statistics(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer("Введите период в формате ДД.ММ.ГГГГ - ДД.ММ.ГГГГ:")
     await state.set_state(StatisticsStates.select_period_packed)
 
@@ -107,6 +109,28 @@ async def user_expenses_statistics(callback: CallbackQuery, session: AsyncSessio
     total_expenses = await get_user_expenses(session, callback.from_user.id)
     await callback.message.answer(f"Ваши расходы из собственных средств составляют {total_expenses} руб.")
 
+
+# Хендлер для получения суммы отгрузок за текущий месяц
+@router.callback_query(F.data == "statistics:shipments_month")
+async def get_shipments_this_month(callback_query: CallbackQuery, session: AsyncSession):
+    """Получить сумму отгрузок за текущий месяц"""
+    # Убедитесь, что сессия передается корректно
+    if session is None:
+        await callback_query.answer("Ошибка сессии.")
+        return
+
+    shipments = await get_shipments_for_current_month(session)
+
+    if shipments:
+        small_packs, large_packs = shipments
+        total_packs = (small_packs or 0) + (large_packs or 0)
+        await callback_query.message.answer(f"За текущий месяц отгружено:\n"
+                                    f"Пачки по 3 кг: {small_packs or 0}\n"
+                                    f"Пачки по 5 кг: {large_packs or 0}\n"
+                                    f"Общее количество пачек: {total_packs}")
+    else:
+        await callback_query.message.answer("За текущий месяц нет отгрузок.")
+
 @router.callback_query(F.data == "statistics:expenses_all")
 async def all_expenses_statistics(callback: CallbackQuery, session: AsyncSession):
     expenses = await get_all_expenses(session)
@@ -118,6 +142,40 @@ async def all_expenses_statistics(callback: CallbackQuery, session: AsyncSession
     text = "\n".join([f"👤 {item['user']}: 💰 {item['amount']} руб. ➝ {item['purpose']}" for item in expenses])
     await callback.message.answer(f"📜 *Список всех расходов:*\n{text}", parse_mode="Markdown")
 
+router.callback_query(F.data == "statistics:shipments_period")
+async def get_shipments_for_custom_period(callback: CallbackQuery):
+    """Запрашиваем период отгрузок за конкретный интервал времени."""
+    # Запросим у пользователя даты начала и конца периода
+    await callback.message.answer("Введите период в формате: дд.мм.гггг - дд.мм.гггг")
+
+@router.message(F.text)
+async def handle_period_input(message: Message, session: AsyncSession, state: FSMContext):
+    """Обрабатываем ввод периода пользователем."""
+    period = message.text.strip()
+
+    try:
+        # Преобразуем строки в формат дат
+        start_date_str, end_date_str = period.split(" - ")
+
+        # Преобразуем в datetime
+        start_date = datetime.strptime(start_date_str, "%d.%m.%Y")
+        end_date = datetime.strptime(end_date_str, "%d.%m.%Y")
+
+        # Получаем отгрузки за указанный период
+        shipments = await get_shipments_for_period(session, start_date, end_date)
+
+        if shipments:
+            small_packs, large_packs = shipments
+            total_packs = (small_packs or 0) + (large_packs or 0)
+            await message.answer(f"Отгрузки за период с {start_date_str} по {end_date_str}:\n"
+                                 f"Пачки по 3 кг: {small_packs or 0}\n"
+                                 f"Пачки по 5 кг: {large_packs or 0}\n"
+                                 f"Общее количество пачек: {total_packs}")
+        else:
+            await message.answer("В указанный период нет отгрузок.")
+
+    except ValueError:
+        await message.answer("Неверный формат даты. Пожалуйста, используйте формат: дд.мм.гггг - дд.мм.гггг")
 # Хендлер для кнопки "Закрыть меню"
 @router.callback_query(F.data == "statistics:close")
 async def close_shipment_menu(callback_query: CallbackQuery):

@@ -4,13 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="24800e9a-eebd-4dcb-84e9-0bf391ca5d09" name="Changes" comment="Работает добавлен склад, добавление отгрузок">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/handlers/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/statistics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/keyboards/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/statistics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/models/models.py" beforeDir="false" />
+    <list default="true" id="24800e9a-eebd-4dcb-84e9-0bf391ca5d09" name="Changes" comment="Изменена таблица &quot;фасовка&quot;">
+      <change afterPath="$PROJECT_DIR$/bot/models/product.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/models/packaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/packaging.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/services/shipment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/services/shipment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/services/packaging_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/services/packaging_service.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -138,7 +135,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743348001216</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Изменена таблица &quot;фасовка&quot;">
+      <option name="closed" value="true" />
+      <created>1743423284615</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1743423284615</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -156,6 +161,7 @@
     <MESSAGE value="Работает уплавление персоналом и приходы" />
     <MESSAGE value="Работает статистика, начало дабавления склада" />
     <MESSAGE value="Работает добавлен склад, добавление отгрузок" />
-    <option name="LAST_COMMIT_MESSAGE" value="Работает добавлен склад, добавление отгрузок" />
+    <MESSAGE value="Изменена таблица &quot;фасовка&quot;" />
+    <option name="LAST_COMMIT_MESSAGE" value="Изменена таблица &quot;фасовка&quot;" />
   </component>
 </project>

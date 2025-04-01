@@ -5,7 +5,7 @@ from bot.models.arrival import Arrival
 from bot.models.role import Role
 from bot.models.expense import Expense
 from bot.models.packaging import Packaging
-from bot.models.storage import Storage
+from bot.models.storage import ProductStorage, RawMaterialStorage
 from bot.models.shipment import Shipment
 from bot.models.product import Product
 from bot.models.rawProduct import RawProduct

@@ -11,7 +11,7 @@ class Shipment(Base):
     timestamp = Column(DateTime, default=func.now())  # Время отгрузки
 
     user = relationship("User", back_populates="shipments")
-    products = relationship("ShipmentItem", back_populates="shipment")  # Связь через промежуточную таблицу
+    shipment_items = relationship("ShipmentItem", back_populates="shipment")  # Связь через промежуточную таблицу
 
 
 class ShipmentItem(Base):
@@ -23,5 +23,5 @@ class ShipmentItem(Base):
     product_id = Column(Integer, ForeignKey("products.id"), nullable=False)
     quantity = Column(Integer, nullable=False)  # Количество единиц данного продукта в отгрузке
 
-    shipment = relationship("Shipment", back_populates="products")
-    product = relationship("Product", back_populates="shipments")
+    shipment = relationship("Shipment", back_populates="shipment_items")
+    product = relationship("Product", back_populates="shipment_items")

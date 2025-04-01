@@ -5,7 +5,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.models.database import async_session
-from bot.models import Shipment, Storage
+from bot.models import Shipment, ProductStorage
 
 # Сохранение отгрузки в базу данных
 async def save_shipment(user_id: int, small_packs: int, large_packs: int, session: AsyncSession):
@@ -16,7 +16,7 @@ async def save_shipment(user_id: int, small_packs: int, large_packs: int, sessio
 # Обновление остатков на складе после отгрузки
 async def update_stock_after_shipment(small_packs: int, large_packs: int, session: AsyncSession):
     # Получаем текущий склад
-    stock = await session.get(Storage, 1)
+    stock = await session.get(ProductStorage, 1)
 
     # Обновляем количество пачек на складе
     stock.packs_3kg -= small_packs

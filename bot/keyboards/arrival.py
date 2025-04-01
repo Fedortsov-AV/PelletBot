@@ -5,15 +5,17 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from bot.services.arrival import get_raw_product_names
 
 
-def arrival_types_keyboard(session: AsyncSession):
-    builder = InlineKeyboardBuilder()
-    products = get_raw_product_names(session)
-
+async def arrival_types_keyboard(session: AsyncSession):
+    buttons = []
+    products = await  get_raw_product_names(session)
+    if not products:
+        return InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="Нет продукции", callback_data="no_product")]
+        ])
     for product in products:
-        builder.button(text=product, callback_data=f"arrival_type:{product}")
+        buttons.append([InlineKeyboardButton(text=product, callback_data=f"arrival_type:{product}")])
 
-    builder.adjust(2)
-    return builder.as_markup()
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
 def confirm_arrival_keyboard():

@@ -18,8 +18,7 @@ async def on_startup():
     await create_tables()
 
 
-def async_session_maker():
-    pass
+
 
 
 async def main():
@@ -28,8 +27,8 @@ async def main():
 
     await init_db()  # Инициализация БД
     await on_startup()
-    async with async_session() as session:
-        await fill_roles(session)
+    # async with async_session() as session:
+    #     await fill_roles(session)
     logging.info("Таблица ролей заполнена.")
 
     dp.update.middleware(DBMiddleware())  # Подключаем middleware

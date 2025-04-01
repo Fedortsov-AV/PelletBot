@@ -8,8 +8,8 @@ class Packaging(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     product_name = Column(String, ForeignKey("products.name"), unique=True)
-    amount = Column(Integer, nullable=False)
-    used_raw_material = Column(Integer, nullable=False)  # Сколько первичной продукции ушло
+    amount = Column(Integer, nullable=False, server_default="0")
+    used_raw_material = Column(Integer, nullable=False)
     date = Column(DateTime, default=datetime.utcnow)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
 

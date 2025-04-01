@@ -12,6 +12,6 @@ class Product(Base):
     raw_product_id = Column(Integer, ForeignKey("raw_products.id"), nullable=True)
 
     raw_material = relationship("RawProduct", back_populates="products")
-    packagings = relationship("Packaging", back_populates="products")
-    shipments = relationship("ShipmentItem", back_populates="products")
-    storage = relationship("Storage", back_populates="products")
+    packagings = relationship("Packaging", back_populates="product")
+    storage = relationship("ProductStorage", back_populates="product")
+    shipment_items = relationship("ShipmentItem", back_populates="product")

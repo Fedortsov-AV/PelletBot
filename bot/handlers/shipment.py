@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from bot.fsm.shipment import ShipmentState
 from aiogram import Router
 from bot.services.shipment import save_shipment, update_stock_after_shipment  # Сервисы для работы с БД
-from bot.services.storage import get_stock
+from bot.services.storage import get_raw_material_storage
 
 # Создаем экземпляр Router
 router = Router()

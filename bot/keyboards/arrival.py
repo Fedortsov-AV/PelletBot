@@ -17,6 +17,17 @@ async def arrival_types_keyboard(session: AsyncSession):
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
+async def arrival_types_keyboard_for_edit(session: AsyncSession):
+    buttons = []
+    products = await  get_raw_product_names(session)
+    if not products:
+        return InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="Нет продукции", callback_data="no_product")]
+        ])
+    for product in products:
+        buttons.append([InlineKeyboardButton(text=product, callback_data=f"arrival_type_edit:{product}")])
+
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 def confirm_arrival_keyboard():
     return InlineKeyboardBuilder().row(

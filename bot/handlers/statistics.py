@@ -18,7 +18,7 @@ from bot.services.statistics import (
     get_all_expenses
 )
 from bot.fsm.statistics import StatisticsStates
-from bot.services.storage import get_stock
+from bot.services.storage import get_raw_material_storage
 
 router = Router()
 
@@ -35,7 +35,7 @@ async def open_statistics_menu(callback: CallbackQuery):
 # Остатки на складе
 @router.callback_query(F.data == "statistics:stock")
 async def stock_statistics(callback: CallbackQuery, session: AsyncSession):
-    stock = await get_stock(session)
+    stock = await get_raw_material_storage(session)
     await callback.message.answer(
         f"Сейчас на складе:\n"
         f"- {stock.pellets_6mm} кг пеллет по 6мм\n"

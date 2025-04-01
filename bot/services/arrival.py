@@ -69,7 +69,7 @@ async def delete_arrival(session: AsyncSession, arrival_id: int):
         await session.commit()
     return arrival
 
-async def update_arrival_amount(session: AsyncSession, arrival_id: int, new_amount: int):
+async def update_arrival_amount(session: AsyncSession, arrival_id: int, new_amount: int, arrival_type: str):
     """Изменение количества продукции в приходе"""
     try:
         result = await session.execute(select(Arrival).where(Arrival.id == arrival_id))
@@ -79,6 +79,7 @@ async def update_arrival_amount(session: AsyncSession, arrival_id: int, new_amou
             # Корректируем склад
             delta = new_amount - arrival.amount
             arrival.amount = new_amount
+            arrival.type = arrival_type
             await update_stock_arrival(session, arrival.type, delta)  # Изменяем склад
             await session.commit()
     except SQLAlchemyError:

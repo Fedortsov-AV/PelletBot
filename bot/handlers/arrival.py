@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
 
 from bot.keyboards.arrival import (
-    arrival_types_keyboard, confirm_arrival_keyboard, arrival_main_keyboard
+    arrival_types_keyboard, confirm_arrival_keyboard, arrival_main_keyboard, arrival_types_keyboard_for_edit
 )
 from bot.models.arrival import Arrival
 from bot.models.database import async_session
@@ -13,7 +13,7 @@ from bot.fsm.arrival import ArrivalState
 from bot.services.arrival import (
     get_arrivals_for_month, delete_arrival, add_arrival, update_arrival_amount
 )
-from bot.services.storage import get_stock, update_stock_arrival, update_stock_packaging
+from bot.services.storage import update_stock_arrival, update_stock_packaging
 from bot.services.user_service import get_user
 
 router = Router()
@@ -34,7 +34,6 @@ async def show_arrival_menu(message: Message):
 async def add_arrival_handler(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Начать процесс добавления прихода."""
     keyboard = await arrival_types_keyboard(session)
-    print(keyboard)
     await callback.message.answer("Выберите тип продукции:", reply_markup=keyboard )
     await state.set_state(ArrivalState.type)
 
@@ -150,20 +149,31 @@ async def edit_arrival_handler(callback: CallbackQuery, state: FSMContext):
     await callback.message.answer("Введите новое количество (кг):")
     await state.set_state(ArrivalState.amount_edit)
 
-
 @router.message(ArrivalState.amount_edit, F.text.isdigit())
 async def set_arrival_amount_edit_handler(message: Message, state: FSMContext, session: AsyncSession):
-    """Обновление количества прихода и склада."""
+    """Редактирование типа родукции прихода"""
     new_amount = int(message.text)
     if new_amount <= 0:
         await message.answer("Ошибка: количество должно быть больше 0.")
         return
 
+    await state.update_data(arrival_amount=new_amount)
+
+    keyboard = await arrival_types_keyboard_for_edit(session)
+    await message.answer("Выберите тип продукции:", reply_markup=keyboard)
+    await state.set_state(ArrivalState.type_edit)
+
+
+@router.callback_query(ArrivalState.type_edit, F.data.startswith("arrival_type_edit:"))
+async def set_arrival_type_edit_handler(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
+    """Обновление количества прихода и склада."""
+    arrival_type = callback.data.split(":")[1]
+
     data = await state.get_data()
-    print(f'arrival_id {data=}')
     arrival_id = data['arrival_id']
+    arrival_amount = data['arrival_amount']
 
-    await update_arrival_amount(session, arrival_id, new_amount)
+    await update_arrival_amount(session, arrival_id, arrival_amount, arrival_type)
 
-    await message.answer(f"✅ Количество прихода {arrival_id} изменено на {new_amount} кг.")
+    await callback.message.answer(f"✅ Количество прихода {arrival_type} ID={arrival_id} изменено на {arrival_amount} кг.")
     await state.clear()

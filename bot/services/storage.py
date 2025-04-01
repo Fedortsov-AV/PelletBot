@@ -6,7 +6,7 @@ from bot.models import RawMaterialStorage, RawProduct, Arrival
 
 
 # 🏭 Получить текущий склад (если нет — создать)
-async def get_stock(session: AsyncSession):
+async def get_raw_material_storage(session: AsyncSession):
     result = await session.execute(select(RawMaterialStorage).limit(1))
     stock = result.scalar_one_or_none()
 
@@ -54,7 +54,7 @@ async def update_stock_arrival(session: AsyncSession, type: str, amount: int):
 # ➖ Обновить после фасовки (атомарно)
 async def update_stock_packaging(session: AsyncSession, used_pellets: int, small_packs: int, large_packs: int):
      # Гарантируем атомарность
-    stock = await get_stock(session)
+    stock = await get_raw_material_storage(session)
 
     # Проверка на недостаток пеллет перед фасовкой
     if stock.pellets_6mm < used_pellets:

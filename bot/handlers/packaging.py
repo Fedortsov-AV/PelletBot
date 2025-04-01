@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.keyboards.packaging import packaging_main_keyboard
 from bot.services.packaging_service import save_packaging
-from bot.services.storage import get_stock, update_stock_packaging
+from bot.services.storage import update_stock_packaging, get_raw_material_storage
 from bot.fsm.packaging import PackagingStates
 
 router = Router()
@@ -20,9 +20,9 @@ async def show_packaging_menu(message: Message):
 @router.callback_query(F.data == "packaging_proportion")
 async def show_packaging_proportion(callback: CallbackQuery, session: AsyncSession):
     """Показываем, сколько нужно расфасовать"""
-    stock = await get_stock(session)
+    stock = await get_raw_material_storage(session)
 
-    if stock.pellets_6mm < 8:
+    if stock.amount < 8:
         await callback.message.answer("На складе недостаточно пеллет для фасовки.")
         return
 
@@ -69,7 +69,7 @@ async def get_large_packs(message: Message, state: FSMContext, session: AsyncSes
         used_raw = small_packs * 3 + large_packs * 5  # Расход первичной продукции
 
         # Проверяем наличие пеллет
-        stock = await get_stock(session)
+        stock = await get_raw_material_storage(session)
         if stock.pellets_6mm < used_raw:
             await message.answer("Недостаточно пеллет на складе для фасовки!")
             await state.clear()

@@ -13,21 +13,6 @@ from bot.services.storage import update_stock_arrival
 from bot.services.user_service import get_user
 
 
-async def process_arrival(message: Message):
-    """Обработка прихода без запроса комментария."""
-    async with async_session() as session:
-        arrival = Arrival(
-            type="default",  # Можно заменить на реальный тип, если он есть
-            amount=1,  # Можно передавать реальное количество
-            date=datetime.utcnow(),
-            user_id=message.from_user.id
-        )
-        session.add(arrival)
-        await session.commit()
-
-    await message.answer("Приход успешно зарегистрирован!")
-
-
 async def add_arrival(session: AsyncSession, tg_id: int, type: str, amount: int):
     async with session.begin():  # Атомарная транзакция
         try:
@@ -48,6 +33,13 @@ async def add_arrival(session: AsyncSession, tg_id: int, type: str, amount: int)
         except SQLAlchemyError:
             await session.rollback()
             raise
+
+async def get_arrival_by_id(session: AsyncSession, id: int) -> Arrival | None:
+    """
+    Получает запись из таблицы Arrival по заданному id.
+    """
+    result = await session.execute(select(Arrival).filter(Arrival.id == id))
+    return result.scalar_one_or_none()  # Вернет объект Arrival или None, если записи нет
 
 async def get_arrivals_for_month(session: AsyncSession, user_id: int):
     """Получение приходов за текущий месяц"""

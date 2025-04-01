@@ -11,3 +11,4 @@ class RawProduct(Base):
 
     products = relationship("Product", back_populates="raw_material")
     storage = relationship("RawMaterialStorage", back_populates="raw_product")
+    packagings = relationship("Packaging", back_populates="raw_product")

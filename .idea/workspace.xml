@@ -4,15 +4,16 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="24800e9a-eebd-4dcb-84e9-0bf391ca5d09" name="Changes" comment="Восстановлена работа &quot;приходы&quot; после изменения структуры БД">
+    <list default="true" id="24800e9a-eebd-4dcb-84e9-0bf391ca5d09" name="Changes" comment="Восстановлена работа &quot;приходы&quot; после изменения структуры БД1">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/fsm/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/fsm/arrival.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/fsm/packaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/fsm/packaging.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/handlers/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/arrival.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/handlers/packaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/packaging.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/handlers/shipment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/shipment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/handlers/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/statistics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/keyboards/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/arrival.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/packaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/packaging.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/models/packaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/packaging.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/models/rawProduct.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/rawProduct.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/services/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/services/arrival.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/services/packaging_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/services/packaging_service.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/services/storage.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/services/storage.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -181,7 +182,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743471546422</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Восстановлена работа &quot;приходы&quot; после изменения структуры БД1">
+      <option name="closed" value="true" />
+      <created>1743474110910</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1743474110910</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -204,14 +213,15 @@
     <MESSAGE value="relationship with product" />
     <MESSAGE value="db_done" />
     <MESSAGE value="Восстановлена работа &quot;приходы&quot; после изменения структуры БД" />
-    <option name="LAST_COMMIT_MESSAGE" value="Восстановлена работа &quot;приходы&quot; после изменения структуры БД" />
+    <MESSAGE value="Восстановлена работа &quot;приходы&quot; после изменения структуры БД1" />
+    <option name="LAST_COMMIT_MESSAGE" value="Восстановлена работа &quot;приходы&quot; после изменения структуры БД1" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/bot/services/arrival.py</url>
-          <line>74</line>
+          <line>66</line>
           <option name="timeStamp" value="6" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">

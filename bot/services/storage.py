@@ -6,17 +6,36 @@ from bot.models import RawMaterialStorage, RawProduct, Arrival
 
 
 # 🏭 Получить текущий склад (если нет — создать)
-async def get_raw_material_storage(session: AsyncSession):
-    result = await session.execute(select(RawMaterialStorage).limit(1))
+async def get_raw_material_storage(session: AsyncSession, arrival_id: int):
+    # Получаем тип материала из таблицы Arrival
+    result = await session.execute(select(Arrival.type).filter(Arrival.id == arrival_id))
+    arrival_type = result.scalar_one_or_none()
+
+
+
+    if not arrival_type:
+        raise ValueError(f"Приход с id {arrival_id} не найден.")
+
+    # Ищем запись в RawMaterialStorage по этому типу
+    result = await session.execute(
+        select(RawMaterialStorage).join(RawProduct).filter(RawProduct.name == arrival_type)
+    )
     stock = result.scalar_one_or_none()
 
     if not stock:
-        stock = RawMaterialStorage()  # Создаём новую запись
-        session.add(stock)
-        await session.commit()
-        await session.refresh(stock)  # Обновляем объект после коммита
+        raise ValueError(f"Материал '{arrival_type}' не найден на складе.")
 
     return stock
+
+
+
+async def get_raw_type_at_raw_product_id(session: AsyncSession, id: int):
+    """
+        Получает поле name из таблицы RawProduct по заданному id.
+        """
+    result = await session.execute(select(RawProduct.name).filter(RawProduct.id == id))
+    return result.scalar_one_or_none()
+
 
 # ➕ Обновить приход пеллет (атомарно)
 async def update_stock_arrival(session: AsyncSession, type: str, amount: int):
@@ -52,7 +71,7 @@ async def update_stock_arrival(session: AsyncSession, type: str, amount: int):
     # await session.commit()  # Подтверждаем изменения в БД
 
 # ➖ Обновить после фасовки (атомарно)
-async def update_stock_packaging(session: AsyncSession, used_pellets: int, small_packs: int, large_packs: int):
+async def update_raw_stock(session: AsyncSession, used_pellets: int):
      # Гарантируем атомарность
     stock = await get_raw_material_storage(session)
 

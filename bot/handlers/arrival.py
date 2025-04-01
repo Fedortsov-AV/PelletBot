@@ -11,9 +11,10 @@ from bot.models.arrival import Arrival
 from bot.models.database import async_session
 from bot.fsm.arrival import ArrivalState
 from bot.services.arrival import (
-    get_arrivals_for_month, delete_arrival, add_arrival, update_arrival_amount
+    get_arrivals_for_month, delete_arrival, add_arrival, update_arrival_amount, get_arrival_by_id
 )
-from bot.services.storage import update_stock_arrival, update_stock_packaging
+from bot.services.storage import update_stock_arrival, get_raw_material_storage, \
+    get_raw_type_at_raw_product_id
 from bot.services.user_service import get_user
 
 router = Router()
@@ -124,17 +125,14 @@ async def view_arrivals_handler(callback: CallbackQuery, session: AsyncSession):
 async def delete_arrival_handler(callback: CallbackQuery, session: AsyncSession):
     """Удаление прихода и обновление склада."""
     arrival_id = int(callback.data.split(":")[1])
+    arival = await get_arrival_by_id(session, arrival_id)
+    raw_storage = await  get_raw_material_storage(session, arrival_id)
+    raw_type = await get_raw_type_at_raw_product_id(session, raw_storage.raw_product_id)
+    delta = 0-arival.amount
+    await  update_stock_arrival(session, raw_type, delta)
+    await session.delete(arival)
+    await session.commit()
 
-    async with session.begin():
-        arrival = await session.get(Arrival, arrival_id)
-        if not arrival:
-            await callback.message.answer("❌ Приход не найден.")
-            return
-
-        # Уменьшаем количество на складе
-        await update_stock_packaging(session, arrival.amount, 0, 0)  # Просто уменьшаем пеллеты
-
-        await session.delete(arrival)
 
     await callback.message.answer(f"✅ Приход {arrival_id} успешно удалён!")
     await callback.answer()

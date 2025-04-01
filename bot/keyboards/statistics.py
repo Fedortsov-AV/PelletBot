@@ -1,26 +1,21 @@
 from aiogram.utils.keyboard import InlineKeyboardBuilder
-from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from sqlalchemy.testing import rowset
+from aiogram.types import InlineKeyboardMarkup
 
 
 def statistics_keyboard() -> InlineKeyboardMarkup:
-    buttons = []
+    builder = InlineKeyboardBuilder()
 
+    builder.button(text="📦 Остатки", callback_data="statistics:stock")
+    builder.button(text="🚚 Отгружено (мес)", callback_data="statistics:shipments_month")
+    builder.button(text="📆 Отгружено (период)", callback_data="statistics:shipments_period")
+    builder.button(text="📊 Фасовка (мес)", callback_data="statistics:packed_month")
+    builder.button(text="📆 Фасовка (период)", callback_data="statistics:packed_period")
+    builder.button(text="📥 Приходы (мес)", callback_data="statistics:arrivals_month")
+    builder.button(text="📆 Приходы (период)", callback_data="statistics:arrivals_period")
+    builder.button(text="💰 Мои расходы", callback_data="statistics:expenses_user")
+    builder.button(text="📜 Все расходы", callback_data="statistics:expenses_all")
+    builder.button(text="📋 Детали расходов", callback_data="statistics:expenses_detailed")
+    builder.button(text="❌ Закрыть", callback_data="statistics:close")
 
-    # Первая строка (3 кнопки)
-    buttons.append([InlineKeyboardButton(text="📦 Остатки на складе", callback_data="statistics:stock")])
-    buttons.append([InlineKeyboardButton(text="📊 Расфасовано за месяц", callback_data="statistics:packed_month")])
-    buttons.append([InlineKeyboardButton(text="📆 Расфасовано за", callback_data="statistics:packed_period")])
-
-    # Вторая строка (3 кнопки)
-    buttons.append([InlineKeyboardButton(text="📥 Сумма приходов за месяц", callback_data="statistics:arrivals_month")])
-    buttons.append([InlineKeyboardButton(text="📆 Сумма приходов за", callback_data="statistics:arrivals_period")])
-    buttons.append([InlineKeyboardButton(text="💰 Расходы СС", callback_data="statistics:expenses_user")])
-
-    # Третья строка (2 кнопки)
-    buttons.append([InlineKeyboardButton(text="📜 Список всех расходов", callback_data="statistics:expenses_all")])
-    buttons.append([InlineKeyboardButton(text="🚚 📆 Сумма отгрузок за текущий месяц", callback_data="statistics:shipments_month")])
-    buttons.append([InlineKeyboardButton(text="🚚 📆 Сумма отгрузок за период", callback_data="statistics:shipments_period")])
-    buttons.append([InlineKeyboardButton(text="❌ Закрыть меню", callback_data="statistics:close")])
-
-    return InlineKeyboardMarkup(inline_keyboard=buttons)
+    builder.adjust(2, 2, 2, 2, 2, 1)
+    return builder.as_markup()

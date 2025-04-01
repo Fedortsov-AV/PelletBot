@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, validates
 
 from bot.models.base import Base
 
@@ -15,3 +15,9 @@ class Product(Base):
     packagings = relationship("Packaging", back_populates="product")
     storage = relationship("ProductStorage", back_populates="product")
     shipment_items = relationship("ShipmentItem", back_populates="product")
+
+    @validates('weight')
+    def validate_weight(self, key, weight):
+        if weight <= 0:
+            raise ValueError("Вес продукта должен быть положительным")
+        return weight

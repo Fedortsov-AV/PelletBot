@@ -1,73 +1,99 @@
-from datetime import datetime, timedelta
-
+from datetime import datetime
 from sqlalchemy import select, func
-from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.models.database import async_session
-from bot.models import Shipment, ProductStorage
+from bot.models import Shipment, ShipmentItem, Product, ProductStorage, User
 
-# Сохранение отгрузки в базу данных
-async def save_shipment(user_id: int, small_packs: int, large_packs: int, session: AsyncSession):
-    shipment = Shipment(user_id=user_id, small_packs=small_packs, large_packs=large_packs)
+
+async def save_shipment(
+        telegram_id: int,  # Используем telegram_id вместо user_id
+        product_id: int,
+        quantity: int,
+        session: AsyncSession
+):
+    """Создание записи об отгрузке"""
+    # Получаем user_id по telegram_id
+    user = await session.execute(select(User).where(User.telegram_id == telegram_id))
+    user = user.scalar_one()
+
+    # Создаем запись об отгрузке
+    shipment = Shipment(
+        user_id=user.id,  # Используем внутренний id пользователя
+        timestamp=datetime.now()
+    )
     session.add(shipment)
+    await session.flush()  # Получаем ID отгрузки
+
+    # Добавляем элементы отгрузки
+    shipment_item = ShipmentItem(
+        shipment_id=shipment.id,
+        product_id=product_id,
+        quantity=quantity
+    )
+    session.add(shipment_item)
+
+    # Обновляем остатки на складе
+    await update_product_stock(product_id, -quantity, session)
+
     await session.commit()
-
-# Обновление остатков на складе после отгрузки
-async def update_stock_after_shipment(small_packs: int, large_packs: int, session: AsyncSession):
-    # Получаем текущий склад
-    stock = await session.get(ProductStorage, 1)
-
-    # Обновляем количество пачек на складе
-    stock.packs_3kg -= small_packs
-    stock.packs_5kg -= large_packs
-
-    await session.commit()
+    return shipment
 
 
-# Получаем сумму отгрузок за текущий месяц
-async def get_shipments_for_current_month(session: AsyncSession):
-    """Получить сумму отгрузок за текущий месяц"""
+async def update_product_stock(
+        product_id: int,
+        quantity_delta: int,
+        session: AsyncSession
+):
+    """Обновление остатков продукта на складе"""
+    storage = await session.get(ProductStorage, product_id)
+    if storage:
+        storage.amount += quantity_delta
+        if storage.amount < 0:
+            raise ValueError("Недостаточно товара на складе")
+        await session.commit()
+
+
+async def get_available_products(session: AsyncSession):
+    """Получение списка продуктов с остатками на складе"""
+    result = await session.execute(
+        select(Product, ProductStorage.amount)
+        .join(ProductStorage, Product.id == ProductStorage.product_id)
+        .where(ProductStorage.amount > 0)
+    )
+    return result.all()
+
+
+async def get_shipments_month_stats(session: AsyncSession):
+    """Получение статистики отгрузок за текущий месяц"""
     now = datetime.now()
-    start_of_month = datetime(now.year, now.month, 1)  # Начало текущего месяца
-    end_of_month = datetime(now.year, now.month + 1, 1) if now.month < 12 else datetime(now.year + 1, 1, 1)  # Начало следующего месяца
+    start_date = datetime(now.year, now.month, 1)
+    end_date = datetime(now.year, now.month + 1, 1) if now.month < 12 else datetime(now.year + 1, 1, 1)
 
-    try:
-        result = await session.execute(
-            select(
-                func.sum(Shipment.small_packs),
-                func.sum(Shipment.large_packs)
-            ).filter(
-                Shipment.timestamp >= start_of_month,
-                Shipment.timestamp < end_of_month
-            )
+    result = await session.execute(
+        select(
+            Product.name,
+            func.sum(ShipmentItem.quantity).label('total')
         )
-        shipments = result.fetchone()  # Получаем результат из запроса
-        return shipments
+        .join(ShipmentItem, ShipmentItem.product_id == Product.id)
+        .join(Shipment, Shipment.id == ShipmentItem.shipment_id)
+        .where(Shipment.timestamp.between(start_date, end_date))
+        .group_by(Product.name)
+    )
 
-    except SQLAlchemyError as e:
-        await session.rollback()  # Откат транзакции при ошибке
-        print(f"Ошибка выполнения запроса: {e}")
-        return None
+    return result.all()
 
-# Получаем сумму отгрузок за определённый период
-async def get_shipments_for_period(session: AsyncSession, start_date: str, end_date: str):
-    """Получить сумму отгрузок за определённый период для пользователя"""
-    try:
 
-        # Создаем запрос с использованием select и фильтрации по дате
-        stmt = select(
-            func.sum(Shipment.small_packs).label('small_packs_sum'),
-            func.sum(Shipment.large_packs).label('large_packs_sum')
-        ).filter(Shipment.timestamp >= start_date, Shipment.timestamp < end_date)
+async def get_shipments_period_stats(session: AsyncSession, start_date: datetime, end_date: datetime):
+    """Получение статистики отгрузок за указанный период"""
+    result = await session.execute(
+        select(
+            Product.name,
+            func.sum(ShipmentItem.quantity).label('total')
+        )
+        .join(ShipmentItem, ShipmentItem.product_id == Product.id)
+        .join(Shipment, Shipment.id == ShipmentItem.shipment_id)
+        .where(Shipment.timestamp.between(start_date, end_date))
+        .group_by(Product.name)
+    )
 
-        # Выполняем запрос
-        result = await session.execute(stmt)
-        shipments = result.fetchone()
-
-        if shipments:
-            return shipments.small_packs_sum, shipments.large_packs_sum
-        return 0, 0  # Если нет данных для этого периода
-
-    except ValueError:
-        return None  # Некорректный формат даты
+    return result.all()

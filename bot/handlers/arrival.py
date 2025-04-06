@@ -1,17 +1,15 @@
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime
 
+from bot.fsm.arrival import ArrivalState
 from bot.keyboards.arrival import (
     arrival_types_keyboard, confirm_arrival_keyboard, arrival_main_keyboard, arrival_types_keyboard_for_edit
 )
-from bot.models.arrival import Arrival
 from bot.models.database import async_session
-from bot.fsm.arrival import ArrivalState
 from bot.services.arrival import (
-    get_arrivals_for_month, delete_arrival, add_arrival, update_arrival_amount, get_arrival_by_id
+    get_arrivals_for_month, add_arrival, update_arrival_amount, get_arrival_by_id
 )
 from bot.services.storage import update_stock_arrival, get_raw_material_storage, \
     get_raw_type_at_raw_product_id
@@ -35,7 +33,7 @@ async def show_arrival_menu(message: Message):
 async def add_arrival_handler(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Начать процесс добавления прихода."""
     keyboard = await arrival_types_keyboard(session)
-    await callback.message.answer("Выберите тип продукции:", reply_markup=keyboard )
+    await callback.message.answer("Выберите тип продукции:", reply_markup=keyboard)
     await state.set_state(ArrivalState.type)
 
 
@@ -128,11 +126,10 @@ async def delete_arrival_handler(callback: CallbackQuery, session: AsyncSession)
     arival = await get_arrival_by_id(session, arrival_id)
     raw_storage = await  get_raw_material_storage(session, arrival_id)
     raw_type = await get_raw_type_at_raw_product_id(session, raw_storage.raw_product_id)
-    delta = 0-arival.amount
+    delta = 0 - arival.amount
     await  update_stock_arrival(session, raw_type, delta)
     await session.delete(arival)
     await session.commit()
-
 
     await callback.message.answer(f"✅ Приход {arrival_id} успешно удалён!")
     await callback.answer()
@@ -146,6 +143,7 @@ async def edit_arrival_handler(callback: CallbackQuery, state: FSMContext):
     await state.update_data(arrival_id=arrival_id)
     await callback.message.answer("Введите новое количество (кг):")
     await state.set_state(ArrivalState.amount_edit)
+
 
 @router.message(ArrivalState.amount_edit, F.text.isdigit())
 async def set_arrival_amount_edit_handler(message: Message, state: FSMContext, session: AsyncSession):
@@ -173,5 +171,6 @@ async def set_arrival_type_edit_handler(callback: CallbackQuery, state: FSMConte
 
     await update_arrival_amount(session, arrival_id, arrival_amount, arrival_type)
 
-    await callback.message.answer(f"✅ Количество прихода {arrival_type} ID={arrival_id} изменено на {arrival_amount} кг.")
+    await callback.message.answer(
+        f"✅ Количество прихода {arrival_type} ID={arrival_id} изменено на {arrival_amount} кг.")
     await state.clear()

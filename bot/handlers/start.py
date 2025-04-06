@@ -1,7 +1,8 @@
-from aiogram import Router, types
+from aiogram import Router
 from aiogram.filters import Command
 from aiogram.types import Message
 from sqlalchemy.ext.asyncio import AsyncSession
+
 from bot.keyboards.main import get_main_keyboard
 from bot.services.user_service import get_user, create_user
 

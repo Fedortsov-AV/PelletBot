@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -63,37 +64,37 @@ async def get_available_products(session: AsyncSession):
     return result.all()
 
 
-async def get_shipments_month_stats(session: AsyncSession):
-    """Получение статистики отгрузок за текущий месяц"""
-    now = datetime.now()
-    start_date = datetime(now.year, now.month, 1)
-    end_date = datetime(now.year, now.month + 1, 1) if now.month < 12 else datetime(now.year + 1, 1, 1)
+# async def get_shipments_month_stats(session: AsyncSession):
+#     """Получение статистики отгрузок за текущий месяц"""
+#     now = datetime.now()
+#     start_date = datetime(now.year, now.month, 1)
+#     end_date = datetime(now.year, now.month + 1, 1) if now.month < 12 else datetime(now.year + 1, 1, 1)
+#
+#     result = await session.execute(
+#         select(
+#             Product.name,
+#             func.sum(ShipmentItem.quantity).label('total')
+#         )
+#         .join(ShipmentItem, ShipmentItem.product_id == Product.id)
+#         .join(Shipment, Shipment.id == ShipmentItem.shipment_id)
+#         .where(Shipment.timestamp.between(start_date, end_date))
+#         .group_by(Product.name)
+#     )
+#
+#     return result.all()
 
-    result = await session.execute(
-        select(
-            Product.name,
-            func.sum(ShipmentItem.quantity).label('total')
-        )
-        .join(ShipmentItem, ShipmentItem.product_id == Product.id)
-        .join(Shipment, Shipment.id == ShipmentItem.shipment_id)
-        .where(Shipment.timestamp.between(start_date, end_date))
-        .group_by(Product.name)
-    )
 
-    return result.all()
-
-
-async def get_shipments_period_stats(session: AsyncSession, start_date: datetime, end_date: datetime):
-    """Получение статистики отгрузок за указанный период"""
-    result = await session.execute(
-        select(
-            Product.name,
-            func.sum(ShipmentItem.quantity).label('total')
-        )
-        .join(ShipmentItem, ShipmentItem.product_id == Product.id)
-        .join(Shipment, Shipment.id == ShipmentItem.shipment_id)
-        .where(Shipment.timestamp.between(start_date, end_date))
-        .group_by(Product.name)
-    )
-
-    return result.all()
+# async def get_shipments_period_stats(session: AsyncSession, start_date: datetime, end_date: datetime):
+#     """Получение статистики отгрузок за указанный период"""
+#     result = await session.execute(
+#         select(
+#             Product.name,
+#             func.sum(ShipmentItem.quantity).label('total')
+#         )
+#         .join(ShipmentItem, ShipmentItem.product_id == Product.id)
+#         .join(Shipment, Shipment.id == ShipmentItem.shipment_id)
+#         .where(Shipment.timestamp.between(start_date, end_date))
+#         .group_by(Product.name)
+#     )
+#
+#     return result.all()

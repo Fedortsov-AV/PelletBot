@@ -1,7 +1,9 @@
 from sqlalchemy import Column, Integer, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
+
 from bot.models.base import Base
+
 
 class Shipment(Base):
     __tablename__ = "shipments"

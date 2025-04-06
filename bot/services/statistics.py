@@ -1,7 +1,8 @@
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_, extract, case
 from datetime import datetime, date
-from typing import Dict, List, Union
+from typing import Dict, List
+
+from sqlalchemy import select, func, and_, extract, case
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.models import (
     User,

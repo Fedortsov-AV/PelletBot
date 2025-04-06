@@ -1,5 +1,7 @@
 from aiogram import Dispatcher
-# from bot.handlers import start  # Импортируем все обработчики
+
+
+
 
 def register_handlers(dp: Dispatcher):
     from bot.handlers import start, admin, info, arrival, expense, packaging, statistics, shipment

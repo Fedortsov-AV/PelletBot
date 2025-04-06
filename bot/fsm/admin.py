@@ -8,6 +8,7 @@ class AddRecordStates(StatesGroup):
     waiting_field_value = State()
     waiting_fk_selection = State()
 
+
 class EditRecordStates(StatesGroup):
-    selecting_field =State()
+    selecting_field = State()
     editing_field = State()

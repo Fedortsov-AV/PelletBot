@@ -1,13 +1,13 @@
 # ------------------- Файл handlers/adminka/edit_handlers.py -------------------
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery
 from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.services.db_service import DBService
-from bot.services.validation import DataValidator
 from bot.fsm.admin import EditRecordStates
 from bot.keyboards.admin import cancel_keyboard, edit_fields_keyboard
+from bot.services.db_service import DBService
+from bot.services.validation import DataValidator
 
 router = Router()
 

@@ -1,3 +1,4 @@
+from aiogram import Router
 from aiogram import types, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -5,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.fsm.shipment import ShipmentState
 from bot.services.shipment import save_shipment, get_available_products
-from aiogram import Router
 
 router = Router()
 
@@ -28,6 +28,7 @@ async def show_shipment_menu(message: types.Message, session: AsyncSession):
         ]
     )
     await message.answer("Выберите действие:", reply_markup=keyboard)
+
 
 @router.callback_query(F.data == "add_shipment")
 async def start_shipment_process(
@@ -61,8 +62,8 @@ async def start_shipment_process(
 
 @router.callback_query(F.data.startswith("select_product:"), ShipmentState.selecting_product)
 async def select_product_for_shipment(
-    callback: types.CallbackQuery,
-    state: FSMContext
+        callback: types.CallbackQuery,
+        state: FSMContext
 ):
     """Обработка выбора продукта"""
     product_id = int(callback.data.split(":")[1])
@@ -120,9 +121,9 @@ async def enter_shipment_quantity(
 
 @router.callback_query(F.data == "add_more", ShipmentState.adding_more)
 async def add_more_products(
-    callback: types.CallbackQuery,
-    state: FSMContext,
-    session: AsyncSession
+        callback: types.CallbackQuery,
+        state: FSMContext,
+        session: AsyncSession
 ):
     """Добавление дополнительных продуктов в отгрузку"""
     await start_shipment_process(callback, state, session)
@@ -130,8 +131,8 @@ async def add_more_products(
 
 @router.callback_query(F.data == "finish_shipment", ShipmentState.adding_more)
 async def finish_shipment_process(
-    callback: types.CallbackQuery,
-    state: FSMContext
+        callback: types.CallbackQuery,
+        state: FSMContext
 ):
     """Завершение процесса отгрузки"""
     await callback.message.answer("Отгрузка завершена.")

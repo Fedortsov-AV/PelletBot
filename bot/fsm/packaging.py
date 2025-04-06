@@ -1,5 +1,6 @@
 from aiogram.fsm.state import State, StatesGroup
 
+
 class PackagingStates(StatesGroup):
     waiting_for_raw_material = State()
     waiting_for_product = State()

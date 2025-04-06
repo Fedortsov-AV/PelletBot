@@ -1,13 +1,10 @@
-from aiogram.types import Message
+from datetime import datetime
+
 from sqlalchemy import select, extract
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from bot.models import RawMaterialStorage
-from bot.models.database import async_session
 from bot.models.arrival import Arrival
-from datetime import datetime
-
 from bot.models.rawProduct import RawProduct
 from bot.services.storage import update_stock_arrival
 from bot.services.user_service import get_user
@@ -17,7 +14,7 @@ async def add_arrival(session: AsyncSession, tg_id: int, type: str, amount: int)
     async with session.begin():  # Атомарная транзакция
         try:
             user = await get_user(session, tg_id)
-            print(f'Получен user_id {user.id=}')
+            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!!Получен user_id {user.id=}')
             # Добавляем приход
             arrival = Arrival(
                 type=type,

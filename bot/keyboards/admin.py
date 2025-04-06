@@ -1,6 +1,8 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
+from bot.services.db_service import DBService
+
 
 def admin_menu():
     builder = InlineKeyboardBuilder()
@@ -9,18 +11,18 @@ def admin_menu():
     builder.button(text="❌ Закрыть", callback_data="admin_close")
     return builder.adjust(2).as_markup()
 
-def db_tables_keyboard():
-    builder = InlineKeyboardBuilder()
-    tables = ["Пользователи", "Продукты", "Сырье", "Отгрузки", "Поступления", "Расходы", "Роли"]
-    for table in tables:
-        builder.button(text=table, callback_data=f"db_table:{table.lower()}")
-    builder.button(text="⬅️ Назад", callback_data="admin_menu")
-    return builder.adjust(2).as_markup()
+# def db_tables_keyboard():
+#     builder = InlineKeyboardBuilder()
+#     tables = ["Пользователи", "Продукты", "Сырье", "Отгрузки", "Поступления", "Расходы", "Роли"]
+#     for table in tables:
+#         builder.button(text=table, callback_data=f"db_table:{table.lower()}")
+#     builder.button(text="⬅️ Назад", callback_data="admin_menu")
+#     return builder.adjust(2).as_markup()
 
 
 def record_actions_keyboard(table_name: str, record_id: int):
     builder = InlineKeyboardBuilder()
-    builder.button(text="✏️ Изменить", callback_data=f"edit:{table_name}:{record_id}")
+    builder.button(text="✏️ Изменить", callback_data=f"db_edit:{table_name}:{record_id}")
     builder.button(text="🗑 Удалить", callback_data=f"delete:{table_name}:{record_id}")
     builder.adjust(2)
     return builder.as_markup()
@@ -28,7 +30,9 @@ def record_actions_keyboard(table_name: str, record_id: int):
 def db_management_keyboard():
     """Клавиатура выбора таблиц"""
     builder = InlineKeyboardBuilder()
-    tables = ["Пользователи", "Продукты", "Сырье", "Отгрузки", "Поступления", "Расходы"]
+    models = DBService.MODELS.keys()
+    # tables = ["Пользователи", "Продукты", "Сырье", "Отгрузки", "Поступления", "Расходы"]
+    tables = [x for x in models]
     for table in tables:
         builder.button(text=table, callback_data=f"select_table:{table.lower()}")
     builder.button(text="⬅️ Назад", callback_data="admin_menu")
@@ -44,14 +48,14 @@ def table_actions_keyboard(table_name: str):
     builder.adjust(2)
     return builder.as_markup()
 
-def db_tables_keyboard():
-    builder = InlineKeyboardBuilder()
-    tables = ["Пользователи", "Продукты", "Сырье", "Отгрузки", "Поступления", "Расходы",  "Роли"]
-    for table in tables:
-        builder.button(text=table, callback_data=f"db_table:{table.lower()}")
-    builder.button(text="❌ Отмена", callback_data="cancel")
-    builder.adjust(2)
-    return builder.as_markup()
+# def db_tables_keyboard():
+#     builder = InlineKeyboardBuilder()
+#     tables = ["Пользователи", "Продукты", "Сырье", "Отгрузки", "Поступления", "Расходы",  "Роли"]
+#     for table in tables:
+#         builder.button(text=table, callback_data=f"db_table:{table.lower()}")
+#     builder.button(text="❌ Отмена", callback_data="cancel")
+#     builder.adjust(2)
+#     return builder.as_markup()
 
 def cancel_keyboard():
     builder = InlineKeyboardBuilder()
@@ -85,8 +89,8 @@ def get_fk_keyboard(options, field_name):
     builder.adjust(1)
     return builder.as_markup()
 
-def confirm_add_keyboard(table_name: str):
-    return InlineKeyboardMarkup(inline_keyboard=[[
-        InlineKeyboardButton(text="✅ Подтвердить", callback_data="confirm_add_record"),
-        InlineKeyboardButton(text="🔄 Начать заново", callback_data=f"add_record:{table_name}")
-    ]])
+# def confirm_add_keyboard(table_name: str):
+#     return InlineKeyboardMarkup(inline_keyboard=[[
+#         InlineKeyboardButton(text="✅ Подтвердить", callback_data="confirm_add_record"),
+#         InlineKeyboardButton(text="🔄 Начать заново", callback_data=f"add_record:{table_name}")
+#     ]])

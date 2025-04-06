@@ -1,7 +1,10 @@
-from sqlalchemy import Column, Integer, ForeignKey, DateTime, String
-from sqlalchemy.orm import relationship
 from datetime import datetime
+
+from sqlalchemy import Column, Integer, ForeignKey, DateTime
+from sqlalchemy.orm import relationship
+
 from bot.models.base import Base
+
 
 class Packaging(Base):
     __tablename__ = "packaging"

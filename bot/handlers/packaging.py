@@ -1,22 +1,23 @@
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from bot.fsm.packaging import PackagingStates
 from bot.keyboards.packaging import packaging_main_keyboard, raw_materials_keyboard
 from bot.models import Product
 from bot.services.packaging_service import calculate_packaging_ratio, get_raw_materials, \
-    get_products_for_raw_material, save_packaging, update_stock_after_packaging, check_raw_material_available, \
-    get_raw_material_availability
-from bot.services.storage import get_raw_material_storage
-from bot.fsm.packaging import PackagingStates
+    get_products_for_raw_material, save_packaging, update_stock_after_packaging, get_raw_material_availability
+from bot.services.user_service import get_user
 
 router = Router()
+
 
 @router.message(F.text == "📦 Фасовка")
 async def show_packaging_menu(message: Message):
     """Открывает меню фасовки"""
     await message.answer("Выберите действие:", reply_markup=packaging_main_keyboard())
+
 
 @router.callback_query(F.data == "packaging_proportion")
 async def start_packaging_proportion(
@@ -31,6 +32,7 @@ async def start_packaging_proportion(
         reply_markup=keyboard
     )
     await state.set_state(PackagingStates.waiting_for_raw_material)
+
 
 @router.callback_query(
     PackagingStates.waiting_for_raw_material,
@@ -74,6 +76,7 @@ async def select_raw_material(
         f"Введите соотношение фасовки в формате X/Y (например 2/1):"
     )
 
+
 @router.message(PackagingStates.waiting_for_ratio)
 async def process_ratio(
         message: Message,
@@ -114,6 +117,7 @@ async def process_ratio(
     )
     await state.clear()
 
+
 @router.callback_query(F.data == "packaging_done")
 async def start_packaging_done(
         callback: CallbackQuery,
@@ -127,6 +131,7 @@ async def start_packaging_done(
         reply_markup=keyboard
     )
     await state.set_state(PackagingStates.waiting_for_done_raw_material)
+
 
 @router.callback_query(
     PackagingStates.waiting_for_done_raw_material,
@@ -148,9 +153,11 @@ async def select_packaging_raw_material(
         return
 
     keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [InlineKeyboardButton(text=p.name, callback_data=f"select_product_{p.id}")]
-        for p, _ in products
-    ] + [[InlineKeyboardButton(text="❌ Отмена", callback_data="cancel_packaging")]])
+                                                        [InlineKeyboardButton(text=p.name,
+                                                                              callback_data=f"select_product_{p.id}")]
+                                                        for p, _ in products
+                                                    ] + [[InlineKeyboardButton(text="❌ Отмена",
+                                                                               callback_data="cancel_packaging")]])
 
     await state.update_data(raw_product_id=raw_product_id)
     await state.set_state(PackagingStates.waiting_for_product)
@@ -158,6 +165,7 @@ async def select_packaging_raw_material(
         "Выберите продукт, который был расфасован:",
         reply_markup=keyboard
     )
+
 
 @router.callback_query(
     PackagingStates.waiting_for_product,
@@ -207,11 +215,19 @@ async def process_packaging_amount(
             )
             return
 
+        user_id = await get_user(session, message.from_user.id)
+        print(user_id)
         # Дальнейшая обработка фасовки...
-        packaging = await save_packaging(...)
-        await update_stock_after_packaging(...)
+        packaging = await save_packaging(
+            session,
+            user_id.id,
+            product.id,
+            product.raw_product_id,
+            amount,
+            required_raw)
+        await update_stock_after_packaging(session, product.id, product.raw_product_id, amount, required_raw)
 
-        await message.answer(...)
+        await message.answer("Фасовка добавлена")
         await state.clear()
 
     except ValueError:

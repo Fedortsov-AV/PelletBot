@@ -1,6 +1,7 @@
 # ------------------- Файл services/db_service.py -------------------
 import logging
 from sqlite3 import IntegrityError
+from typing import List
 
 from sqlalchemy import select, desc, inspect, exists
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,7 +22,10 @@ class DBService:
         'поступления': Arrival,
         'расходы': Expense,
         'элементы_отгрузки': ShipmentItem,
-        'роли': Role
+        'роли': Role,
+        'cклад сырья': RawMaterialStorage,
+        'cклад продукции': ProductStorage,
+
     }
 
     @staticmethod
@@ -181,3 +185,10 @@ class DBService:
         """Получает все записи указанной модели"""
         result = await session.execute(select(model))
         return result.scalars().all()
+
+async def get_admin_ids(session: AsyncSession) -> List[int]:
+    """Получает telegram_id всех администраторов"""
+    result = await session.execute(
+        select(User.telegram_id).where(User.role == "admin")
+    )
+    return [row[0] for row in result.all()]

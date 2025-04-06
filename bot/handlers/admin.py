@@ -11,10 +11,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.exceptions import InvalidDataError
 from bot.fsm.admin import AddRecordStates
-from bot.keyboards.admin import admin_menu, record_actions_keyboard, table_actions_keyboard, db_tables_keyboard, \
-    cancel_keyboard, db_management_keyboard, back_to_table_keyboard
+from bot.keyboards.admin import admin_menu, record_actions_keyboard, table_actions_keyboard, cancel_keyboard, \
+    db_management_keyboard, back_to_table_keyboard
 from bot.keyboards.users import get_user_list_keyboard
-from bot.keyboards.roles import get_role_selection_keyboard
 from bot.services.auth import get_user_role, update_user_role, get_all_users, is_admin
 from bot.services.db_service import DBService
 from bot.services.role_service import get_all_roles
@@ -124,6 +123,7 @@ async def handle_db_management(callback: CallbackQuery):
 async def handle_table_selection(callback: CallbackQuery):
     """Обработка выбора таблицы"""
     table_name = callback.data.split(":")[1]
+    print(f'{table_name=}')
     await callback.message.edit_text(
         f"Таблица: {table_name.capitalize()}\nВыберите действие:",
         reply_markup=table_actions_keyboard(table_name)

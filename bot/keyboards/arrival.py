@@ -1,5 +1,5 @@
-from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.utils.keyboard import InlineKeyboardBuilder
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.services.arrival import get_raw_product_names
@@ -17,6 +17,7 @@ async def arrival_types_keyboard(session: AsyncSession):
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
+
 async def arrival_types_keyboard_for_edit(session: AsyncSession):
     buttons = []
     products = await  get_raw_product_names(session)
@@ -29,11 +30,13 @@ async def arrival_types_keyboard_for_edit(session: AsyncSession):
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
+
 def confirm_arrival_keyboard():
     return InlineKeyboardBuilder().row(
         InlineKeyboardButton(text="✅ Подтвердить", callback_data="arrival_confirm"),
         InlineKeyboardButton(text="❌ Отмена", callback_data="arrival_cancel")
     ).as_markup()
+
 
 def arrival_main_keyboard(role: str) -> InlineKeyboardMarkup:
     """Главное меню для обработки приходов с учётом роли пользователя."""
@@ -43,7 +46,6 @@ def arrival_main_keyboard(role: str) -> InlineKeyboardMarkup:
 
     if role in ["admin", "manager", "operator"]:
         buttons.append([InlineKeyboardButton(text="✅ Добавить приход", callback_data="add_arrival")])
-
 
     # Только для менеджеров и администраторов добавляем кнопку "Приходы за месяц"
     if role in ["admin", "manager"]:

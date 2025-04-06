@@ -17,8 +17,6 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
-async def on_startup():
-    await create_tables()
 
 
 
@@ -29,7 +27,7 @@ async def main():
     dp = Dispatcher()
 
     await init_db()  # Инициализация БД
-    await on_startup()
+    await on_startup(bot)
     # async with async_session() as session:
     #     await fill_roles(session)
     logging.info("Таблица ролей заполнена.")
@@ -43,6 +41,12 @@ async def main():
     ])
 
     await dp.start_polling(bot)
+
+async def on_startup(bot):
+    await create_tables()
+    from bot.services.scheduler import SchedulerService
+    scheduler = SchedulerService(bot)
+    await scheduler.start()
 
 
 if __name__ == "__main__":

@@ -1,6 +1,5 @@
 from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
-from aiogram.types import ReplyKeyboardMarkup, KeyboardButton
 
 def get_main_keyboard(role: str) -> ReplyKeyboardMarkup:
     """Генерация клавиатуры в зависимости от роли пользователя"""

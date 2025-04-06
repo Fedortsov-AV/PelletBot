@@ -1,5 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+
 def get_role_selection_keyboard(user_id: int, roles: list) -> InlineKeyboardMarkup:
     """Генерация клавиатуры для выбора роли пользователя."""
     keyboard = InlineKeyboardMarkup()

@@ -1,6 +1,7 @@
 from aiogram.dispatcher.middlewares.base import BaseMiddleware
-from sqlalchemy.ext.asyncio import AsyncSession
+
 from bot.models.database import async_session
+
 
 class DBMiddleware(BaseMiddleware):
     async def __call__(self, handler, event, data):

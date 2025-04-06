@@ -1,16 +1,34 @@
-from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from bot.services.arrival import get_raw_product_names
 
 
-def arrival_types_keyboard():
-    builder = InlineKeyboardBuilder()
-    products = ["Пеллеты 6мм", "Пеллеты 8мм"]
-
+async def arrival_types_keyboard(session: AsyncSession):
+    buttons = []
+    products = await  get_raw_product_names(session)
+    if not products:
+        return InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="Нет продукции", callback_data="no_product")]
+        ])
     for product in products:
-        builder.button(text=product, callback_data=f"arrival_type:{product}")
+        buttons.append([InlineKeyboardButton(text=product, callback_data=f"arrival_type:{product}")])
 
-    builder.adjust(2)
-    return builder.as_markup()
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
+
+
+async def arrival_types_keyboard_for_edit(session: AsyncSession):
+    buttons = []
+    products = await  get_raw_product_names(session)
+    if not products:
+        return InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="Нет продукции", callback_data="no_product")]
+        ])
+    for product in products:
+        buttons.append([InlineKeyboardButton(text=product, callback_data=f"arrival_type_edit:{product}")])
+
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
 def confirm_arrival_keyboard():
@@ -18,6 +36,7 @@ def confirm_arrival_keyboard():
         InlineKeyboardButton(text="✅ Подтвердить", callback_data="arrival_confirm"),
         InlineKeyboardButton(text="❌ Отмена", callback_data="arrival_cancel")
     ).as_markup()
+
 
 def arrival_main_keyboard(role: str) -> InlineKeyboardMarkup:
     """Главное меню для обработки приходов с учётом роли пользователя."""
@@ -27,7 +46,6 @@ def arrival_main_keyboard(role: str) -> InlineKeyboardMarkup:
 
     if role in ["admin", "manager", "operator"]:
         buttons.append([InlineKeyboardButton(text="✅ Добавить приход", callback_data="add_arrival")])
-
 
     # Только для менеджеров и администраторов добавляем кнопку "Приходы за месяц"
     if role in ["admin", "manager"]:

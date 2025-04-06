@@ -1,91 +1,147 @@
+from aiogram import Router
 from aiogram import types, F
 from aiogram.fsm.context import FSMContext
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.fsm.shipment import ShipmentState
-from aiogram import Router
-from bot.services.shipment import save_shipment, update_stock_after_shipment  # Сервисы для работы с БД
-from bot.services.storage import get_stock
+from bot.services.shipment import save_shipment, get_available_products
 
-# Создаем экземпляр Router
 router = Router()
 
-# Отображаем меню отгрузки с инлайн кнопками
+
 @router.message(F.text == "🚚 Отгрузка")
-async def show_shipment_menu(message: types.Message):
-    """Показываем меню отгрузки с эмодзи как изображениями в кнопках"""
+async def show_shipment_menu(message: types.Message, session: AsyncSession):
+    """Меню отгрузки с проверкой доступных продуктов"""
+    available_products = await get_available_products(session)
 
-    # Создание инлайн-клавиатуры с эмодзи в кнопках
-    keyboard = InlineKeyboardMarkup(inline_keyboard=[
-        [
-            InlineKeyboardButton(text="📦 Добавить отгрузку", callback_data="add_shipment"),
-            InlineKeyboardButton(text="❌ Закрыть меню", callback_data="close_shipment_menu")
+    if not available_products:
+        await message.answer("На складе нет доступных продуктов для отгрузки.")
+        return
+
+    keyboard = InlineKeyboardMarkup(
+        inline_keyboard=[
+            [
+                InlineKeyboardButton(text="📦 Добавить отгрузку", callback_data="add_shipment"),
+                InlineKeyboardButton(text="❌ Закрыть", callback_data="close_menu")
+            ]
         ]
-    ])
-
-    # Отправляем сообщение с клавиатурой
+    )
     await message.answer("Выберите действие:", reply_markup=keyboard)
-# Хендлер для кнопки "Добавить отгрузку"
+
+
 @router.callback_query(F.data == "add_shipment")
-async def add_shipment_step1(callback_query: types.CallbackQuery, state: FSMContext):
-    """Запрашиваем количество отгруженных пачек по 3 кг"""
-    await callback_query.answer()  # Отвечаем на запрос, чтобы убрать крутящийся индикатор
-    await callback_query.message.answer("Сколько пачек по 3 кг было отгружено?")
-    await state.set_state(ShipmentState.waiting_for_small_packs)
+async def start_shipment_process(
+        callback: types.CallbackQuery,
+        state: FSMContext,
+        session: AsyncSession
+):
+    """Начало процесса отгрузки"""
+    await callback.answer()
+
+    products = await get_available_products(session)
+
+    # Создаем кнопки для каждого продукта
+    buttons = []
+    for product, amount in products:
+        buttons.append(
+            [InlineKeyboardButton(
+                text=f"{product.name} (остаток: {amount})",
+                callback_data=f"select_product:{product.id}"
+            )]
+        )
+
+    keyboard = InlineKeyboardMarkup(inline_keyboard=buttons)
+
+    await callback.message.answer(
+        "Выберите продукт для отгрузки:",
+        reply_markup=keyboard
+    )
+    await state.set_state(ShipmentState.selecting_product)
 
 
-# @router.callback_query(Text("add_shipment"))
-# async def add_shipment(call: types.CallbackQuery, state: FSMContext):
-#     """Запросить количество пачек по 3 кг"""
-#     await call.message.answer("Сколько пачек по 3 кг было отгружено?")
-#     await state.set_state(ShipmentState.waiting_for_small_packs)  # Устанавливаем состояние ожидания
+@router.callback_query(F.data.startswith("select_product:"), ShipmentState.selecting_product)
+async def select_product_for_shipment(
+        callback: types.CallbackQuery,
+        state: FSMContext
+):
+    """Обработка выбора продукта"""
+    product_id = int(callback.data.split(":")[1])
+    await state.update_data(product_id=product_id)
+    await callback.message.answer("Введите количество для отгрузки:")
+    await state.set_state(ShipmentState.entering_quantity)
+    await callback.answer()
 
 
-@router.message(ShipmentState.waiting_for_small_packs)
-async def get_small_packs(message: types.Message, state: FSMContext):
-    """Получаем количество пачек 3 кг"""
+@router.message(ShipmentState.entering_quantity)
+async def enter_shipment_quantity(
+        message: types.Message,
+        state: FSMContext,
+        session: AsyncSession
+):
+    """Обработка ввода количества"""
     try:
-        small_packs = int(message.text)
+        quantity = int(message.text)
+        if quantity <= 0:
+            raise ValueError
     except ValueError:
-        await message.answer("Пожалуйста, введите количество целыми числами.")
+        await message.answer("Пожалуйста, введите целое положительное число.")
         return
 
-    # Сохраняем количество в состоянии
-    await state.update_data(small_packs=small_packs)
+    data = await state.get_data()
+    product_id = data['product_id']
 
-    # Запрашиваем количество пачек по 5 кг
-    await message.answer("Сколько пачек по 5 кг было отгружено?")
-    await state.set_state(ShipmentState.waiting_for_large_packs)  # Переходим в следующее состояние
-
-
-@router.message(ShipmentState.waiting_for_large_packs)
-async def get_large_packs(message: types.Message, state: FSMContext, session: AsyncSession):
-    """Получаем количество пачек 5 кг"""
     try:
-        large_packs = int(message.text)
-    except ValueError:
-        await message.answer("Пожалуйста, введите количество целыми числами.")
-        return
+        await save_shipment(
+            telegram_id=message.from_user.id,  # Передаем telegram_id вместо user_id
+            product_id=product_id,
+            quantity=quantity,
+            session=session
+        )
 
-    # Получаем данные из состояния
-    user_data = await state.get_data()
-    small_packs = user_data.get("small_packs")
+        keyboard = InlineKeyboardMarkup(
+            inline_keyboard=[
+                [
+                    InlineKeyboardButton(text="✅ Да", callback_data="add_more"),
+                    InlineKeyboardButton(text="❌ Нет", callback_data="finish_shipment")
+                ]
+            ]
+        )
 
-    await save_shipment(user_id=message.from_user.id, small_packs=small_packs, large_packs=large_packs, session=session)
+        await message.answer(
+            "Отгрузка успешно добавлена. Добавить еще продукты?",
+            reply_markup=keyboard
+        )
+        await state.set_state(ShipmentState.adding_more)
 
-    # Обновляем остатки на складе
-    await update_stock_after_shipment(small_packs=small_packs, large_packs=large_packs, session=session)
+    except ValueError as e:
+        await message.answer(str(e))
+        await state.clear()
 
-    # Завершаем процесс
-    await message.answer(f"Отгрузка завершена: {small_packs} пачек по 3 кг и {large_packs} пачек по 5 кг.")
 
-    # Закрываем состояние
+@router.callback_query(F.data == "add_more", ShipmentState.adding_more)
+async def add_more_products(
+        callback: types.CallbackQuery,
+        state: FSMContext,
+        session: AsyncSession
+):
+    """Добавление дополнительных продуктов в отгрузку"""
+    await start_shipment_process(callback, state, session)
+
+
+@router.callback_query(F.data == "finish_shipment", ShipmentState.adding_more)
+async def finish_shipment_process(
+        callback: types.CallbackQuery,
+        state: FSMContext
+):
+    """Завершение процесса отгрузки"""
+    await callback.message.answer("Отгрузка завершена.")
     await state.clear()
+    await callback.answer()
 
-# Хендлер для кнопки "Закрыть меню"
-@router.callback_query(F.data == "close_shipment_menu")
-async def close_shipment_menu(callback_query: types.CallbackQuery):
-    """Закрытие меню отгрузки"""
-    await callback_query.message.delete()
-    await callback_query.answer()
+
+@router.callback_query(F.data == "close_menu")
+async def close_menu(callback: types.CallbackQuery):
+    """Закрытие меню"""
+    await callback.message.delete()
+    await callback.answer()

@@ -1,19 +1,18 @@
 from aiogram import Router, F
-from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from aiogram.fsm.context import FSMContext
+from aiogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime
 
-from bot.keyboards.arrival import (
-    arrival_types_keyboard, confirm_arrival_keyboard, arrival_main_keyboard
-)
-from bot.models.arrival import Arrival
-from bot.models.database import async_session
 from bot.fsm.arrival import ArrivalState
-from bot.services.arrival import (
-    get_arrivals_for_month, delete_arrival
+from bot.keyboards.arrival import (
+    arrival_types_keyboard, confirm_arrival_keyboard, arrival_main_keyboard, arrival_types_keyboard_for_edit
 )
-from bot.services.storage import get_stock, update_stock_arrival, update_stock_packaging
+from bot.models.database import async_session
+from bot.services.arrival import (
+    get_arrivals_for_month, add_arrival, update_arrival_amount, get_arrival_by_id
+)
+from bot.services.storage import update_stock_arrival, get_raw_material_storage, \
+    get_raw_type_at_raw_product_id
 from bot.services.user_service import get_user
 
 router = Router()
@@ -31,9 +30,10 @@ async def show_arrival_menu(message: Message):
 
 
 @router.callback_query(F.data == "add_arrival")
-async def add_arrival_handler(callback: CallbackQuery, state: FSMContext):
+async def add_arrival_handler(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Начать процесс добавления прихода."""
-    await callback.message.answer("Выберите тип продукции:", reply_markup=arrival_types_keyboard())
+    keyboard = await arrival_types_keyboard(session)
+    await callback.message.answer("Выберите тип продукции:", reply_markup=keyboard)
     await state.set_state(ArrivalState.type)
 
 
@@ -70,17 +70,18 @@ async def confirm_arrival(callback: CallbackQuery, state: FSMContext, session: A
     """Подтверждение добавления прихода."""
     data = await state.get_data()
 
-    async with session.begin():  # Атомарная операция
-        arrival = Arrival(
-            type=data["type"],
-            amount=data["amount"],
-            user_id=callback.from_user.id,
-            date=datetime.utcnow(),
-        )
-        session.add(arrival)
-
-        # Вызов обновления склада с передачей всех аргументов
-        await update_stock_arrival(session,  data["amount"])
+    await add_arrival(session, callback.from_user.id, data["type"], data["amount"])
+    # async with session.begin():  # Атомарная операция
+    #     arrival = Arrival(
+    #         type=data["type"],
+    #         amount=data["amount"],
+    #         user_id=callback.from_user.id,
+    #         date=datetime.utcnow(),
+    #     )
+    #     session.add(arrival)
+    #
+    #     # Вызов обновления склада с передачей всех аргументов
+    #     await update_stock_arrival(session, data["type"], data["amount"])
 
     await callback.message.edit_text("✅ Приход успешно добавлен!")
     await state.clear()
@@ -122,17 +123,13 @@ async def view_arrivals_handler(callback: CallbackQuery, session: AsyncSession):
 async def delete_arrival_handler(callback: CallbackQuery, session: AsyncSession):
     """Удаление прихода и обновление склада."""
     arrival_id = int(callback.data.split(":")[1])
-
-    async with session.begin():
-        arrival = await session.get(Arrival, arrival_id)
-        if not arrival:
-            await callback.message.answer("❌ Приход не найден.")
-            return
-
-        # Уменьшаем количество на складе
-        await update_stock_packaging(session, arrival.amount, 0, 0)  # Просто уменьшаем пеллеты
-
-        await session.delete(arrival)
+    arival = await get_arrival_by_id(session, arrival_id)
+    raw_storage = await  get_raw_material_storage(session, arrival_id)
+    raw_type = await get_raw_type_at_raw_product_id(session, raw_storage.raw_product_id)
+    delta = 0 - arival.amount
+    await  update_stock_arrival(session, raw_type, delta)
+    await session.delete(arival)
+    await session.commit()
 
     await callback.message.answer(f"✅ Приход {arrival_id} успешно удалён!")
     await callback.answer()
@@ -142,6 +139,7 @@ async def delete_arrival_handler(callback: CallbackQuery, session: AsyncSession)
 async def edit_arrival_handler(callback: CallbackQuery, state: FSMContext):
     """Редактирование количества прихода."""
     arrival_id = int(callback.data.split(":")[1])
+    print(f'{arrival_id=}')
     await state.update_data(arrival_id=arrival_id)
     await callback.message.answer("Введите новое количество (кг):")
     await state.set_state(ArrivalState.amount_edit)
@@ -149,26 +147,30 @@ async def edit_arrival_handler(callback: CallbackQuery, state: FSMContext):
 
 @router.message(ArrivalState.amount_edit, F.text.isdigit())
 async def set_arrival_amount_edit_handler(message: Message, state: FSMContext, session: AsyncSession):
-    """Обновление количества прихода и склада."""
+    """Редактирование типа родукции прихода"""
     new_amount = int(message.text)
     if new_amount <= 0:
         await message.answer("Ошибка: количество должно быть больше 0.")
         return
 
+    await state.update_data(arrival_amount=new_amount)
+
+    keyboard = await arrival_types_keyboard_for_edit(session)
+    await message.answer("Выберите тип продукции:", reply_markup=keyboard)
+    await state.set_state(ArrivalState.type_edit)
+
+
+@router.callback_query(ArrivalState.type_edit, F.data.startswith("arrival_type_edit:"))
+async def set_arrival_type_edit_handler(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
+    """Обновление количества прихода и склада."""
+    arrival_type = callback.data.split(":")[1]
+
     data = await state.get_data()
     arrival_id = data['arrival_id']
+    arrival_amount = data['arrival_amount']
 
-    async with session.begin():
-        arrival = await session.get(Arrival, arrival_id)
-        if not arrival:
-            await message.answer("❌ Приход не найден.")
-            return
+    await update_arrival_amount(session, arrival_id, arrival_amount, arrival_type)
 
-        # Корректируем склад
-        delta = new_amount - arrival.amount
-        await update_stock_arrival(session, delta)  # Изменяем склад
-
-        arrival.amount = new_amount
-
-    await message.answer(f"✅ Количество прихода {arrival_id} изменено на {new_amount} кг.")
+    await callback.message.answer(
+        f"✅ Количество прихода {arrival_type} ID={arrival_id} изменено на {arrival_amount} кг.")
     await state.clear()

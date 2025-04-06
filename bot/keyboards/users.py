@@ -1,5 +1,6 @@
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
+
 def get_user_list_keyboard(user_id: int):
     return InlineKeyboardMarkup(
         inline_keyboard=[

@@ -2,9 +2,10 @@ from aiogram import Router, F, types
 from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from bot.fsm.expense import ExpenseStates
 from bot.keyboards.expense import expense_main_keyboard, expense_source_keyboard, expense_actions_keyboard
 from bot.services.expense import add_expense, get_expenses, update_expense, change_expense_source, delete_expense
-from bot.fsm.expense import ExpenseStates
 from bot.services.user_service import get_user
 
 router = Router()
@@ -40,8 +41,8 @@ async def process_expense_purpose(message: types.Message, state: FSMContext):
 async def process_expense_source(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     data = await state.get_data()
     source = "собственные средства" if callback.data == "expense_source_own" else "касса"
-
-    await add_expense(session, callback.from_user.id, data["amount"], data["purpose"], source)
+    user = await get_user(session, callback.from_user.id)
+    await add_expense(session, user.id, data["amount"], data["purpose"], source)
     await state.clear()
     await callback.message.answer("Расход успешно добавлен.")
     await callback.answer()
@@ -49,7 +50,8 @@ async def process_expense_source(callback: CallbackQuery, state: FSMContext, ses
 
 @router.callback_query(F.data == "view_expenses")
 async def show_expenses(callback: CallbackQuery, session: AsyncSession):
-    expenses = await get_expenses(session, callback.from_user.id)
+    user = await get_user(session, callback.from_user.id)
+    expenses = await get_expenses(session, user.id)
 
     if not expenses:
         await callback.message.answer("У вас нет расходов из собственных средств.")

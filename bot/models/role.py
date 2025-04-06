@@ -1,5 +1,7 @@
 from sqlalchemy import Column, Integer, String
+
 from bot.models.base import Base
+
 
 class Role(Base):
     __tablename__ = "roles"

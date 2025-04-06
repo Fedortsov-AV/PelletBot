@@ -35,3 +35,8 @@ async def get_all_users(session: AsyncSession):
     """Возвращает список всех пользователей"""
     result = await session.execute(select(User))
     return result.scalars().all()
+
+async def is_admin(session: AsyncSession, telegram_id: int) -> bool:
+    """Проверка, является ли пользователь администратором"""
+    user = await get_user_by_telegram_id(session, telegram_id)
+    return user.role == "admin" if user else False

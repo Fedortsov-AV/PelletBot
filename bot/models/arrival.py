@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-from datetime import datetime
+
 from bot.models.base import Base
+
 
 class Arrival(Base):
     __tablename__ = "arrivals"
@@ -11,6 +14,5 @@ class Arrival(Base):
     amount = Column(Integer, nullable=False)
     date = Column(DateTime, default=datetime.utcnow)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-
 
     user = relationship("User", back_populates="arrivals")

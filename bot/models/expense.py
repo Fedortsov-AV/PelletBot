@@ -1,7 +1,10 @@
+from datetime import datetime
+
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-from datetime import datetime
+
 from bot.models.base import Base
+
 
 class Expense(Base):
     __tablename__ = "expenses"

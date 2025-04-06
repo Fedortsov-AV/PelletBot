@@ -4,9 +4,50 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="24800e9a-eebd-4dcb-84e9-0bf391ca5d09" name="Changes" comment="Add table product">
-      <change beforePath="$PROJECT_DIR$/bot/models/product.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/product.py" afterDir="false" />
+    <list default="true" id="24800e9a-eebd-4dcb-84e9-0bf391ca5d09" name="Changes" comment="Работа с БД из-под адмтнистратора">
+      <change afterPath="$PROJECT_DIR$/bot/handlers/stock_handlers.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/services/scheduler.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/fsm/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/fsm/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/fsm/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/fsm/arrival.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/fsm/expense.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/fsm/expense.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/fsm/packaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/fsm/packaging.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/fsm/shipment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/fsm/shipment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/fsm/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/fsm/statistics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/handlers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/handlers/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/handlers/adminka/add_handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/adminka/add_handlers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/handlers/adminka/cancel_handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/adminka/cancel_handlers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/handlers/adminka/edit_handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/adminka/edit_handlers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/handlers/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/arrival.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/handlers/expense.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/expense.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/handlers/info.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/info.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/handlers/packaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/packaging.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/handlers/shipment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/shipment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/handlers/start.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/start.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/handlers/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/statistics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/admin.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/arrival.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/packaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/packaging.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/roles.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/roles.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/statistics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/keyboards/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/users.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/middlewares/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/middlewares/db.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/models/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/arrival.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/models/expense.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/expense.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/models/packaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/packaging.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/models/rawProduct.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/rawProduct.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/models/role.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/role.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/models/shipment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/shipment.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/models/storage.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/storage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/models/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/user.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/services/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/services/arrival.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/services/db_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/services/db_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/services/shipment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/services/shipment.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/services/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/services/statistics.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,12 +93,18 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "Python.main.executor": "Run",
+    "Python.test.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "db__restyle"
+  },
+  "keyToStringList": {
+    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
+      "PLAIN_TEXT"
+    ]
   }
 }]]></component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Python.main">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="PeletBot" />
       <option name="ENV_FILES" value="" />
@@ -72,6 +119,28 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/bot/main.py" />
+      <option name="PARAMETERS" value="--loglevel=DEBUG" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="test" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="PeletBot" />
+      <option name="ENV_FILES" value="" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/test.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -80,9 +149,14 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Python.test" />
+      <item itemvalue="Python.main" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.test" />
       </list>
     </recent_temporary>
   </component>
@@ -150,7 +224,63 @@
       <option name="project" value="LOCAL" />
       <updated>1743423954730</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="relationship with product">
+      <option name="closed" value="true" />
+      <created>1743424848724</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1743424848724</updated>
+    </task>
+    <task id="LOCAL-00008" summary="db_done">
+      <option name="closed" value="true" />
+      <created>1743427119125</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1743427119125</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Восстановлена работа &quot;приходы&quot; после изменения структуры БД">
+      <option name="closed" value="true" />
+      <created>1743471546422</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1743471546422</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Восстановлена работа &quot;приходы&quot; после изменения структуры БД1">
+      <option name="closed" value="true" />
+      <created>1743474110910</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1743474110910</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Восстановлена работа &quot;фасовка&quot;">
+      <option name="closed" value="true" />
+      <created>1743509554090</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1743509554090</updated>
+    </task>
+    <task id="LOCAL-00012" summary="Восстановлена работа &quot;отгрузка + статистика&quot;">
+      <option name="closed" value="true" />
+      <created>1743524209682</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1743524209682</updated>
+    </task>
+    <task id="LOCAL-00013" summary="Работа с БД из-под адмтнистратора">
+      <option name="closed" value="true" />
+      <created>1743813449738</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1743813449738</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -170,6 +300,29 @@
     <MESSAGE value="Работает добавлен склад, добавление отгрузок" />
     <MESSAGE value="Изменена таблица &quot;фасовка&quot;" />
     <MESSAGE value="Add table product" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add table product" />
+    <MESSAGE value="relationship with product" />
+    <MESSAGE value="db_done" />
+    <MESSAGE value="Восстановлена работа &quot;приходы&quot; после изменения структуры БД" />
+    <MESSAGE value="Восстановлена работа &quot;приходы&quot; после изменения структуры БД1" />
+    <MESSAGE value="Восстановлена работа &quot;фасовка&quot;" />
+    <MESSAGE value="Восстановлена работа &quot;отгрузка + статистика&quot;" />
+    <MESSAGE value="Работа с БД из-под адмтнистратора" />
+    <option name="LAST_COMMIT_MESSAGE" value="Работа с БД из-под адмтнистратора" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bot/services/arrival.py</url>
+          <line>63</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bot/main.py</url>
+          <line>25</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

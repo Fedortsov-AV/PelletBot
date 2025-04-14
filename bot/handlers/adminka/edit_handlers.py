@@ -114,7 +114,7 @@ async def handle_edit_record(callback: CallbackQuery, state: FSMContext, session
 
 @router.callback_query(EditRecordStates.selecting_field, F.data.startswith("edit_field:"))
 @admin_required
-async def handle_field_selection(callback: CallbackQuery, state: FSMContext):
+async def handle_field_selection(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Обработчик выбора поля"""
     data = await state.get_data()
     handler = data['handler']

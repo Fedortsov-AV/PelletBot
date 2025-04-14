@@ -116,7 +116,7 @@ async def close_menu(callback: CallbackQuery):
 
 @router.callback_query(F.data == "admin_db")
 @admin_required
-async def handle_db_management(callback: CallbackQuery):
+async def handle_db_management(callback: CallbackQuery, session: AsyncSession):
     """Меню управления БД"""
     await callback.message.edit_text(
         "🗃 Управление базой данных\nВыберите таблицу:",

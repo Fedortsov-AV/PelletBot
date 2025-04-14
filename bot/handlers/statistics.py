@@ -43,7 +43,7 @@ def format_stock_info(stock_data: Dict) -> str:
 
 @router.message(F.text == "📊 Статистика")
 @staff_required
-async def show_statistics_menu(message: Message):
+async def show_statistics_menu(message: Message, session: AsyncSession):
     """Показывает меню статистики"""
     await message.answer(
         "Выберите нужный раздел статистики:",
@@ -81,7 +81,7 @@ async def handle_packed_month(callback: CallbackQuery, session: AsyncSession):
 
 @router.callback_query(F.data == "statistics:packed_period")
 @staff_required
-async def start_packed_period(callback: CallbackQuery, state: FSMContext):
+async def start_packed_period(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Запрашивает период для статистики фасовки"""
     await callback.message.answer(
         "Введите период в формате ДД.ММ.ГГГГ - ДД.ММ.ГГГГ\n"
@@ -125,7 +125,7 @@ async def process_packed_period(message: Message, state: FSMContext, session: As
 
 @router.callback_query(F.data == "statistics:arrivals_period")
 @staff_required
-async def start_arrivals_period(callback: CallbackQuery, state: FSMContext):
+async def start_arrivals_period(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Запрашивает период для статистики приходов"""
     await callback.message.answer(
         "Введите период для статистики приходов в формате ДД.ММ.ГГГГ - ДД.ММ.ГГГГ\n"
@@ -287,7 +287,8 @@ async def handle_shipments_month(
 @staff_required
 async def handle_shipments_period_start(
         callback: CallbackQuery,
-        state: FSMContext
+        state: FSMContext,
+        session: AsyncSession
 ):
     """Запрос начальной даты периода для статистики отгрузок"""
     await callback.answer()
@@ -299,7 +300,8 @@ async def handle_shipments_period_start(
 @staff_required
 async def handle_shipments_start_date(
         message: Message,
-        state: FSMContext
+        state: FSMContext,
+        session: AsyncSession
 ):
     """Обработка начальной даты периода"""
     try:

@@ -14,13 +14,13 @@ router = Router()
 
 @router.message(F.text == "💸 Расходы")
 @staff_required
-async def show_expense_menu(message: types.Message):
+async def show_expense_menu(message: types.Message, session: AsyncSession):
     await message.answer("Выберите действие:", reply_markup=expense_main_keyboard())
 
 
 @router.callback_query(F.data == "add_expense")
 @staff_required
-async def start_adding_expense(callback: CallbackQuery, state: FSMContext):
+async def start_adding_expense(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     await state.set_state(ExpenseStates.waiting_for_amount)
     await callback.message.answer("Введите сумму расхода:")
     await callback.answer()
@@ -28,7 +28,7 @@ async def start_adding_expense(callback: CallbackQuery, state: FSMContext):
 
 @router.message(ExpenseStates.waiting_for_amount)
 @staff_required
-async def process_expense_amount(message: types.Message, state: FSMContext):
+async def process_expense_amount(message: types.Message, state: FSMContext, session: AsyncSession):
     await state.update_data(amount=int(message.text))
     await state.set_state(ExpenseStates.waiting_for_purpose)
     await message.answer("Введите назначение расхода:")
@@ -36,7 +36,7 @@ async def process_expense_amount(message: types.Message, state: FSMContext):
 
 @router.message(ExpenseStates.waiting_for_purpose)
 @staff_required
-async def process_expense_purpose(message: types.Message, state: FSMContext):
+async def process_expense_purpose(message: types.Message, state: FSMContext, session: AsyncSession):
     await state.update_data(purpose=message.text)
     await state.set_state(ExpenseStates.waiting_for_source)
     await message.answer("Выберите источник расходов:", reply_markup=expense_source_keyboard())
@@ -73,7 +73,7 @@ async def show_expenses(callback: CallbackQuery, session: AsyncSession):
 
 @router.callback_query(F.data.startswith("edit_expense_"))
 @staff_required
-async def start_editing_expense(callback: CallbackQuery, state: FSMContext):
+async def start_editing_expense(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     expense_id = int(callback.data.split("_")[-1])
     await state.update_data(expense_id=expense_id)
     await state.set_state(ExpenseStates.waiting_for_new_amount)
@@ -82,7 +82,7 @@ async def start_editing_expense(callback: CallbackQuery, state: FSMContext):
 
 @router.message(ExpenseStates.waiting_for_new_amount)
 @staff_required
-async def process_new_expense_amount(message: types.Message, state: FSMContext):
+async def process_new_expense_amount(message: types.Message, state: FSMContext, session: AsyncSession):
     await state.update_data(amount=int(message.text))
     await state.set_state(ExpenseStates.waiting_for_new_purpose)
     await message.answer("Введите новое назначение расхода:")
@@ -115,7 +115,6 @@ async def change_expense_source_handler(callback: CallbackQuery, session: AsyncS
     await callback.answer()
 
 @router.callback_query(F.data == "close_expense_menu")
-@staff_required
 async def close_expense_menu(callback: CallbackQuery):
     await callback.message.delete()
     await callback.answer()

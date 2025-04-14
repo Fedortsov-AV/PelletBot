@@ -16,7 +16,7 @@ router = Router()
 
 @router.message(F.text == "📦 Фасовка")
 @restrict_anonymous
-async def show_packaging_menu(message: Message):
+async def show_packaging_menu(message: Message, session: AsyncSession):
     """Открывает меню фасовки"""
     await message.answer("Выберите действие:", reply_markup=packaging_main_keyboard())
 
@@ -181,7 +181,8 @@ async def select_packaging_raw_material(
 @restrict_anonymous
 async def select_packaging_product(
         callback: CallbackQuery,
-        state: FSMContext
+        state: FSMContext,
+        session: AsyncSession
 ):
     """Обработка выбора продукта и запрос количества"""
     product_id = int(callback.data.split("_")[-1])

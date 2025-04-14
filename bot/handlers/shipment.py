@@ -67,7 +67,8 @@ async def start_shipment_process(
 @restrict_anonymous
 async def select_product_for_shipment(
         callback: types.CallbackQuery,
-        state: FSMContext
+        state: FSMContext,
+        session: AsyncSession
 ):
     """Обработка выбора продукта"""
     product_id = int(callback.data.split(":")[1])
@@ -139,7 +140,8 @@ async def add_more_products(
 @restrict_anonymous
 async def finish_shipment_process(
         callback: types.CallbackQuery,
-        state: FSMContext
+        state: FSMContext,
+        session: AsyncSession
 ):
     """Завершение процесса отгрузки"""
     await callback.message.answer("Отгрузка завершена.")

@@ -21,7 +21,7 @@ router = Router()
 
 @router.message(F.text == "Приходы")
 @restrict_anonymous
-async def show_arrival_menu(message: Message):
+async def show_arrival_menu(message: Message, session: AsyncSession):
     """Показать меню приходов."""
     async with async_session() as session:
         user = await get_user(session, message.from_user.id)
@@ -142,7 +142,7 @@ async def delete_arrival_handler(callback: CallbackQuery, session: AsyncSession)
 
 @router.callback_query(F.data.startswith("edit_arrival:"))
 @staff_required
-async def edit_arrival_handler(callback: CallbackQuery, state: FSMContext):
+async def edit_arrival_handler(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Редактирование количества прихода."""
     arrival_id = int(callback.data.split(":")[1])
     print(f'{arrival_id=}')

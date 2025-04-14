@@ -193,7 +193,7 @@ async def handle_field_input(message: Message, state: FSMContext, session: Async
 
 @router.callback_query(F.data.startswith("fk_select:"))
 @admin_required
-async def handle_fk_selection(callback: CallbackQuery, state: FSMContext):
+async def handle_fk_selection(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Обработка выбора значения FK"""
     _, value = callback.data.split(":")
     data = await state.get_data()
@@ -205,7 +205,7 @@ async def handle_fk_selection(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "confirm_add_record")
 @admin_required
-async def handle_confirm_add(callback: CallbackQuery, state: FSMContext):
+async def handle_confirm_add(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Подтверждение и сохранение записи"""
     data = await state.get_data()
     handler: AddHandler = data.get('handler')

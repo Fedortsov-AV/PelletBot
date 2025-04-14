@@ -4,11 +4,13 @@ from aiogram.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 
 from bot.keyboards.admin import admin_menu
+from bot.services.wrapers import admin_required
 
 router = Router()
 
 
 @router.callback_query(F.data == "cancel")
+@admin_required
 async def handle_cancel(callback: CallbackQuery, state: FSMContext):
     """Обработка отмены операции"""
     await state.clear()

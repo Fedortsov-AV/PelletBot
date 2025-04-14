@@ -12,6 +12,7 @@ from bot.fsm.admin import AddRecordStates
 from bot.keyboards.admin import cancel_keyboard, back_to_table_keyboard
 from bot.services.db_service import DBService
 from bot.services.validation import DataValidator
+from bot.services.wrapers import admin_required
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -163,6 +164,7 @@ class AddHandler:
 
 
 @router.callback_query(F.data.startswith("add_record:"))
+@admin_required
 async def start_add_record(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Исправленный запуск добавления"""
     try:
@@ -180,6 +182,7 @@ async def start_add_record(callback: CallbackQuery, state: FSMContext, session: 
 
 
 @router.message(AddRecordStates.waiting_for_fields)
+@admin_required
 async def handle_field_input(message: Message, state: FSMContext, session: AsyncSession):
     """Обработка ввода значения поля"""
     data = await state.get_data()
@@ -189,6 +192,7 @@ async def handle_field_input(message: Message, state: FSMContext, session: Async
 
 
 @router.callback_query(F.data.startswith("fk_select:"))
+@admin_required
 async def handle_fk_selection(callback: CallbackQuery, state: FSMContext):
     """Обработка выбора значения FK"""
     _, value = callback.data.split(":")
@@ -200,6 +204,7 @@ async def handle_fk_selection(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "confirm_add_record")
+@admin_required
 async def handle_confirm_add(callback: CallbackQuery, state: FSMContext):
     """Подтверждение и сохранение записи"""
     data = await state.get_data()

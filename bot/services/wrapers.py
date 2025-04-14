@@ -80,7 +80,7 @@ def staff_required(func):
 
         user = await get_or_create_user(session, from_user.id, from_user.full_name)
 
-        if user.role not in ("admin", "manager", "operator"):
+        if user.role not in ("admin", "manager"):
             message = "👮‍♂️ Недостаточно прав! Доступно для: администраторов, менеджеров и операторов."
             if isinstance(update, types.CallbackQuery):
                 await update.answer(message, show_alert=True)

@@ -14,11 +14,13 @@ from bot.services.arrival import (
 from bot.services.storage import update_stock_arrival, get_raw_material_storage, \
     get_raw_type_at_raw_product_id
 from bot.services.user_service import get_user
+from bot.services.wrapers import restrict_anonymous, staff_required
 
 router = Router()
 
 
 @router.message(F.text == "Приходы")
+@restrict_anonymous
 async def show_arrival_menu(message: Message):
     """Показать меню приходов."""
     async with async_session() as session:
@@ -30,6 +32,7 @@ async def show_arrival_menu(message: Message):
 
 
 @router.callback_query(F.data == "add_arrival")
+@restrict_anonymous
 async def add_arrival_handler(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Начать процесс добавления прихода."""
     keyboard = await arrival_types_keyboard(session)
@@ -95,6 +98,7 @@ async def cancel_arrival(callback: CallbackQuery, state: FSMContext):
 
 
 @router.callback_query(F.data == "view_arrivals")
+@staff_required
 async def view_arrivals_handler(callback: CallbackQuery, session: AsyncSession):
     """Отображение приходов за месяц."""
     arrivals = await get_arrivals_for_month(session, callback.from_user.id)
@@ -120,6 +124,7 @@ async def view_arrivals_handler(callback: CallbackQuery, session: AsyncSession):
 
 
 @router.callback_query(F.data.startswith("delete_arrival:"))
+@staff_required
 async def delete_arrival_handler(callback: CallbackQuery, session: AsyncSession):
     """Удаление прихода и обновление склада."""
     arrival_id = int(callback.data.split(":")[1])
@@ -136,6 +141,7 @@ async def delete_arrival_handler(callback: CallbackQuery, session: AsyncSession)
 
 
 @router.callback_query(F.data.startswith("edit_arrival:"))
+@staff_required
 async def edit_arrival_handler(callback: CallbackQuery, state: FSMContext):
     """Редактирование количества прихода."""
     arrival_id = int(callback.data.split(":")[1])

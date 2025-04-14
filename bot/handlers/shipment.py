@@ -49,7 +49,8 @@ async def start_shipment_process(
     for product, amount in products:
         buttons.append(
             [InlineKeyboardButton(
-                text=f"{product.name} (остаток: {amount})",
+                text=f"{product.name}\n"
+                     f" (остаток: {amount})",
                 callback_data=f"select_product:{product.id}"
             )]
         )
@@ -130,10 +131,12 @@ async def enter_shipment_quantity(
 async def add_more_products(
         callback: types.CallbackQuery,
         state: FSMContext,
-        session: AsyncSession
+        session: AsyncSession,
+        **kwargs
 ):
+    # print("Доступные аргументы:", kwargs.keys())
     """Добавление дополнительных продуктов в отгрузку"""
-    await start_shipment_process(callback, state, session)
+    await start_shipment_process(callback, state, session=session)
 
 
 @router.callback_query(F.data == "finish_shipment", ShipmentState.adding_more)

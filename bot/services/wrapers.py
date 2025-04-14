@@ -102,6 +102,11 @@ def restrict_anonymous(func):
         session: AsyncSession = kwargs.get('session')
 
         if not session:
+            # Пытаемся получить сессию из data (для callback)
+            if 'data' in kwargs and hasattr(kwargs['data'], 'get'):
+                session = kwargs['data'].get('session')
+
+        if not session:
             raise RuntimeError("Сессия БД не передана в аргументах")
 
         # Быстрая проверка на анонимность без запроса к БД

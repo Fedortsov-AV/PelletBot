@@ -4,50 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="24800e9a-eebd-4dcb-84e9-0bf391ca5d09" name="Changes" comment="Работа с БД из-под адмтнистратора">
-      <change afterPath="$PROJECT_DIR$/bot/handlers/stock_handlers.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bot/services/scheduler.py" afterDir="false" />
+    <list default="true" id="24800e9a-eebd-4dcb-84e9-0bf391ca5d09" name="Changes" comment="Рабочая версия 1.0">
+      <change afterPath="$PROJECT_DIR$/bot/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bot/services/wrapers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/fsm/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/fsm/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/fsm/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/fsm/arrival.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/fsm/expense.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/fsm/expense.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/fsm/packaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/fsm/packaging.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/fsm/shipment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/fsm/shipment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/fsm/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/fsm/statistics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/handlers/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/__init__.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/handlers/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/handlers/adminka/add_handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/adminka/add_handlers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/handlers/adminka/cancel_handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/adminka/cancel_handlers.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/handlers/adminka/edit_handlers.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/adminka/edit_handlers.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/handlers/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/arrival.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/handlers/expense.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/expense.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/handlers/info.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/info.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/handlers/packaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/packaging.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/handlers/shipment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/shipment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/handlers/start.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/start.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/handlers/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/handlers/statistics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/keyboards/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/admin.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/keyboards/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/arrival.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/keyboards/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/keyboards/packaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/packaging.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/keyboards/roles.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/roles.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/keyboards/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/statistics.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/keyboards/users.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/keyboards/users.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/middlewares/db.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/middlewares/db.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/__init__.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/models/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/arrival.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/models/expense.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/expense.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/models/packaging.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/packaging.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/models/rawProduct.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/rawProduct.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/models/role.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/role.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/models/shipment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/shipment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/models/storage.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/storage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/models/user.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/models/user.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/services/arrival.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/services/arrival.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/services/auth.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/services/auth.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bot/services/db_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/services/db_service.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/services/shipment.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/services/shipment.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bot/services/statistics.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/services/statistics.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bot/services/role_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/bot/services/role_service.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -69,41 +36,46 @@
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Fedortsov-AV"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Fedortsov-AV&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/Fedortsov-AV/PelletBot.git",
-    "accountId": "c721ed5b-ad7b-40e8-8027-fda10ef4265e"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/Fedortsov-AV/PelletBot.git&quot;,
+    &quot;accountId&quot;: &quot;c721ed5b-ad7b-40e8-8027-fda10ef4265e&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 6
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
   <component name="ProjectId" id="2uyltNNTh2ZzAtBngCTqdtidRdQ" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "Python.main.executor": "Run",
-    "Python.test.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "db__restyle"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;db__restyle&quot;
   },
-  "keyToStringList": {
-    "com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File": [
-      "PLAIN_TEXT"
+  &quot;keyToStringList&quot;: {
+    &quot;com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File&quot;: [
+      &quot;PLAIN_TEXT&quot;
     ]
   }
-}]]></component>
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\ForUs\PycharmProjects\PeletBot" />
+    </key>
+  </component>
   <component name="RunManager" selected="Python.main">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="PeletBot" />
@@ -118,7 +90,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/bot/main.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\ForUs\PycharmProjects\PeletBot\main.py" />
       <option name="PARAMETERS" value="--loglevel=DEBUG" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -280,7 +252,15 @@
       <option name="project" value="LOCAL" />
       <updated>1743813449738</updated>
     </task>
-    <option name="localTasksCounter" value="14" />
+    <task id="LOCAL-00014" summary="Рабочая версия 1.0">
+      <option name="closed" value="true" />
+      <created>1743918891904</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1743918891904</updated>
+    </task>
+    <option name="localTasksCounter" value="15" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -307,7 +287,8 @@
     <MESSAGE value="Восстановлена работа &quot;фасовка&quot;" />
     <MESSAGE value="Восстановлена работа &quot;отгрузка + статистика&quot;" />
     <MESSAGE value="Работа с БД из-под адмтнистратора" />
-    <option name="LAST_COMMIT_MESSAGE" value="Работа с БД из-под адмтнистратора" />
+    <MESSAGE value="Рабочая версия 1.0" />
+    <option name="LAST_COMMIT_MESSAGE" value="Рабочая версия 1.0" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -318,8 +299,8 @@
           <option name="timeStamp" value="6" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/bot/main.py</url>
-          <line>25</line>
+          <url>file://$PROJECT_DIR$/main.py</url>
+          <line>23</line>
           <option name="timeStamp" value="7" />
         </line-breakpoint>
       </breakpoints>

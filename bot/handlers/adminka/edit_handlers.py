@@ -8,6 +8,7 @@ from bot.fsm.admin import EditRecordStates
 from bot.keyboards.admin import cancel_keyboard, edit_fields_keyboard
 from bot.services.db_service import DBService
 from bot.services.validation import DataValidator
+from bot.services.wrapers import role_cache
 
 router = Router()
 
@@ -79,12 +80,22 @@ class EditHandler:
         """Завершение редактирования и сохранение"""
         data = await state.get_data()
         try:
+            record = await session.get(self.model, self.record_id)
+
             await DBService.update_record(
                 session,
                 self.model,
                 self.record_id,
                 data['record_data']
             )
+
+            # Если редактировалась таблица users и менялось поле role
+            if self.table_name == "users" and "role" in data['record_data']:
+                telegram_id = getattr(record, 'telegram_id', None)
+                if telegram_id and telegram_id in role_cache:
+                    # полностью обновляем объект (в зависимости от вашей реализации)
+                    role_cache[telegram_id] = record
+
             await message.answer("✅ Изменения успешно сохранены")
             await state.clear()
         except Exception as e:

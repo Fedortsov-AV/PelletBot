@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.exceptions import InvalidDataError
 from bot.models import User, Product, RawProduct, Shipment, Arrival, Expense, ShipmentItem, Role, RawMaterialStorage, \
-    ProductStorage
+    ProductStorage, Packaging
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +25,8 @@ class DBService:
         'роли': Role,
         'cклад сырья': RawMaterialStorage,
         'cклад продукции': ProductStorage,
+        'фасовка': Packaging,
+        # 'cклад продукции': ProductStorage,
 
     }
 

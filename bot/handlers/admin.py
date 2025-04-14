@@ -17,6 +17,7 @@ from bot.keyboards.users import get_user_list_keyboard
 from bot.services.auth import get_user_role, update_user_role, get_all_users, is_admin
 from bot.services.db_service import DBService
 from bot.services.role_service import get_all_roles
+from bot.services.wrapers import admin_required, staff_required
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -32,13 +33,14 @@ class DBErrorFilter(ExceptionTypeFilter):
 router.error.filter(DBErrorFilter())
 
 @router.message(Command("admin"))
+@staff_required
 async def admin_panel(message: types.Message, session: AsyncSession):
     """ Открывает панель администратора. """
-    role = await get_user_role(session, message.from_user.id)
-
-    if role != "admin":
-        await message.answer("❌ У вас нет прав для доступа в админ-панель.")
-        return
+    # role = await get_user_role(session, message.from_user.id)
+    #
+    # if role != "admin":
+    #     await message.answer("❌ У вас нет прав для доступа в админ-панель.")
+    #     return
 
     await message.answer("🔧 Панель администратора", reply_markup=admin_menu())
 
@@ -220,10 +222,10 @@ async def view_table_records_handler(callback: CallbackQuery, session: AsyncSess
                 reply_markup=record_actions_keyboard(table_name, record.id)
             )
 
-        await callback.message.answer(
-            f"🔍 Показано {len(records)} последних записей из '{table_name}'",
-            reply_markup=back_to_table_keyboard()
-        )
+        # await callback.message.answer(
+        #     f"🔍 Показано {len(records)} последних записей из '{table_name}'",
+        #     reply_markup=back_to_table_keyboard()
+        # )
 
     except ValueError as e:
         logger.error(f"Error: {str(e)}")

@@ -1,6 +1,8 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from bot.models.user import User
+from bot.services.wrapers import role_cache
+
 
 async def get_user_by_telegram_id(session: AsyncSession, telegram_id: int) -> User | None:
     """Получает пользователя по Telegram ID"""
@@ -29,6 +31,11 @@ async def update_user_role(session: AsyncSession, telegram_id: int, new_role: st
 
     user.role = new_role
     await session.commit()
+
+    if telegram_id in role_cache:
+        # Вариант 1: Обновляем только роль
+        role_cache[telegram_id].role = new_role
+
     return True
 
 async def get_all_users(session: AsyncSession):

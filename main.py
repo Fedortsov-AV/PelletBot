@@ -1,16 +1,15 @@
-import logging
 import asyncio
+import logging
+
 from aiogram import Bot, Dispatcher
 from aiogram.types import BotCommand
 
-from bot.services.role_service import fill_roles
-from config import TOKEN
 from bot.handlers import register_handlers
-from bot.models.database import init_db, async_session
 from bot.middlewares.db import DBMiddleware  # Импортируем middleware
-import asyncio
 from bot.models import create_tables
-
+from bot.models.database import init_db, async_session
+from bot.config import TOKEN
+from bot.services.role_service import fill_roles
 
 logging.basicConfig(
     level=logging.INFO,
@@ -23,13 +22,14 @@ logger = logging.getLogger(__name__)
 
 
 async def main():
+    print(f'{TOKEN=}')
     bot = Bot(token=TOKEN)
     dp = Dispatcher()
 
     await init_db()  # Инициализация БД
     await on_startup(bot)
-    # async with async_session() as session:
-    #     await fill_roles(session)
+    async with async_session() as session:
+        await fill_roles(session)
     logging.info("Таблица ролей заполнена.")
 
     dp.update.middleware(DBMiddleware())  # Подключаем middleware

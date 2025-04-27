@@ -6,11 +6,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from bot.fsm.shipment import ShipmentState
 from bot.services.shipment import save_shipment, get_available_products
+from bot.services.wrapers import restrict_anonymous
 
 router = Router()
 
 
 @router.message(F.text == "🚚 Отгрузка")
+@restrict_anonymous
 async def show_shipment_menu(message: types.Message, session: AsyncSession):
     """Меню отгрузки с проверкой доступных продуктов"""
     available_products = await get_available_products(session)
@@ -31,6 +33,7 @@ async def show_shipment_menu(message: types.Message, session: AsyncSession):
 
 
 @router.callback_query(F.data == "add_shipment")
+@restrict_anonymous
 async def start_shipment_process(
         callback: types.CallbackQuery,
         state: FSMContext,
@@ -46,7 +49,8 @@ async def start_shipment_process(
     for product, amount in products:
         buttons.append(
             [InlineKeyboardButton(
-                text=f"{product.name} (остаток: {amount})",
+                text=f"{product.name}\n"
+                     f" (остаток: {amount})",
                 callback_data=f"select_product:{product.id}"
             )]
         )
@@ -61,9 +65,11 @@ async def start_shipment_process(
 
 
 @router.callback_query(F.data.startswith("select_product:"), ShipmentState.selecting_product)
+@restrict_anonymous
 async def select_product_for_shipment(
         callback: types.CallbackQuery,
-        state: FSMContext
+        state: FSMContext,
+        session: AsyncSession
 ):
     """Обработка выбора продукта"""
     product_id = int(callback.data.split(":")[1])
@@ -74,6 +80,7 @@ async def select_product_for_shipment(
 
 
 @router.message(ShipmentState.entering_quantity)
+@restrict_anonymous
 async def enter_shipment_quantity(
         message: types.Message,
         state: FSMContext,
@@ -120,19 +127,24 @@ async def enter_shipment_quantity(
 
 
 @router.callback_query(F.data == "add_more", ShipmentState.adding_more)
+@restrict_anonymous
 async def add_more_products(
         callback: types.CallbackQuery,
         state: FSMContext,
-        session: AsyncSession
+        session: AsyncSession,
+        **kwargs
 ):
+    # print("Доступные аргументы:", kwargs.keys())
     """Добавление дополнительных продуктов в отгрузку"""
-    await start_shipment_process(callback, state, session)
+    await start_shipment_process(callback, state, session=session)
 
 
 @router.callback_query(F.data == "finish_shipment", ShipmentState.adding_more)
+@restrict_anonymous
 async def finish_shipment_process(
         callback: types.CallbackQuery,
-        state: FSMContext
+        state: FSMContext,
+        session: AsyncSession
 ):
     """Завершение процесса отгрузки"""
     await callback.message.answer("Отгрузка завершена.")

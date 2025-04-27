@@ -8,6 +8,7 @@ from bot.fsm.admin import EditRecordStates
 from bot.keyboards.admin import cancel_keyboard, edit_fields_keyboard
 from bot.services.db_service import DBService
 from bot.services.validation import DataValidator
+from bot.services.wrapers import role_cache, admin_required
 
 router = Router()
 
@@ -79,12 +80,22 @@ class EditHandler:
         """Завершение редактирования и сохранение"""
         data = await state.get_data()
         try:
+            record = await session.get(self.model, self.record_id)
+
             await DBService.update_record(
                 session,
                 self.model,
                 self.record_id,
                 data['record_data']
             )
+
+            # Если редактировалась таблица users и менялось поле role
+            if self.table_name == "users" and "role" in data['record_data']:
+                telegram_id = getattr(record, 'telegram_id', None)
+                if telegram_id and telegram_id in role_cache:
+                    # полностью обновляем объект (в зависимости от вашей реализации)
+                    role_cache[telegram_id] = record
+
             await message.answer("✅ Изменения успешно сохранены")
             await state.clear()
         except Exception as e:
@@ -92,6 +103,7 @@ class EditHandler:
 
 
 @router.callback_query(F.data.startswith("db_edit:"))
+@admin_required
 async def handle_edit_record(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Обработчик начала редактирования"""
     _, table_name, record_id = callback.data.split(":")
@@ -101,7 +113,8 @@ async def handle_edit_record(callback: CallbackQuery, state: FSMContext, session
 
 
 @router.callback_query(EditRecordStates.selecting_field, F.data.startswith("edit_field:"))
-async def handle_field_selection(callback: CallbackQuery, state: FSMContext):
+@admin_required
+async def handle_field_selection(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Обработчик выбора поля"""
     data = await state.get_data()
     handler = data['handler']
@@ -109,6 +122,7 @@ async def handle_field_selection(callback: CallbackQuery, state: FSMContext):
 
 
 @router.message(EditRecordStates.editing_field)
+@admin_required
 async def handle_edit_input(message: Message, state: FSMContext, session: AsyncSession):
     """Обработчик ввода нового значения"""
     data = await state.get_data()
@@ -117,6 +131,7 @@ async def handle_edit_input(message: Message, state: FSMContext, session: AsyncS
 
 
 @router.callback_query(EditRecordStates.selecting_field, F.data == "edit_finish")
+@admin_required
 async def handle_edit_finish(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Завершение редактирования"""
     data = await state.get_data()

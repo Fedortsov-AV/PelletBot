@@ -16,6 +16,7 @@ from bot.services.statistics import (
     get_all_expenses, get_detailed_expenses, get_shipments_period_stats, get_shipments_month_stats
 )
 from bot.services.user_service import get_user
+from bot.services.wrapers import staff_required
 
 router = Router()
 
@@ -41,7 +42,8 @@ def format_stock_info(stock_data: Dict) -> str:
 
 
 @router.message(F.text == "📊 Статистика")
-async def show_statistics_menu(message: Message):
+@staff_required
+async def show_statistics_menu(message: Message, session: AsyncSession):
     """Показывает меню статистики"""
     await message.answer(
         "Выберите нужный раздел статистики:",
@@ -50,6 +52,7 @@ async def show_statistics_menu(message: Message):
 
 
 @router.callback_query(F.data == "statistics:stock")
+@staff_required
 async def handle_stock_stats(callback: CallbackQuery, session: AsyncSession):
     """Обрабатывает запрос статистики остатков"""
     try:
@@ -61,6 +64,7 @@ async def handle_stock_stats(callback: CallbackQuery, session: AsyncSession):
 
 
 @router.callback_query(F.data == "statistics:packed_month")
+@staff_required
 async def handle_packed_month(callback: CallbackQuery, session: AsyncSession):
     """Обрабатывает запрос статистики фасовки за месяц"""
     try:
@@ -76,7 +80,8 @@ async def handle_packed_month(callback: CallbackQuery, session: AsyncSession):
 
 
 @router.callback_query(F.data == "statistics:packed_period")
-async def start_packed_period(callback: CallbackQuery, state: FSMContext):
+@staff_required
+async def start_packed_period(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Запрашивает период для статистики фасовки"""
     await callback.message.answer(
         "Введите период в формате ДД.ММ.ГГГГ - ДД.ММ.ГГГГ\n"
@@ -86,6 +91,7 @@ async def start_packed_period(callback: CallbackQuery, state: FSMContext):
 
 
 @router.message(StatisticsStates.wait_packed_period)
+@staff_required
 async def process_packed_period(message: Message, state: FSMContext, session: AsyncSession):
     """Обрабатывает введенный период для статистики фасовки"""
     try:
@@ -118,7 +124,8 @@ async def process_packed_period(message: Message, state: FSMContext, session: As
 
 
 @router.callback_query(F.data == "statistics:arrivals_period")
-async def start_arrivals_period(callback: CallbackQuery, state: FSMContext):
+@staff_required
+async def start_arrivals_period(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Запрашивает период для статистики приходов"""
     await callback.message.answer(
         "Введите период для статистики приходов в формате ДД.ММ.ГГГГ - ДД.ММ.ГГГГ\n"
@@ -128,6 +135,7 @@ async def start_arrivals_period(callback: CallbackQuery, state: FSMContext):
 
 
 @router.message(StatisticsStates.wait_arrivals_period)
+@staff_required
 async def process_arrivals_period(message: Message, state: FSMContext, session: AsyncSession):
     """Обрабатывает введенный период для статистики приходов"""
     try:
@@ -163,6 +171,7 @@ async def process_arrivals_period(message: Message, state: FSMContext, session: 
 
 
 @router.callback_query(F.data == "statistics:arrivals_month")
+@staff_required
 async def handle_arrivals_month(callback: CallbackQuery, session: AsyncSession):
     """Обрабатывает запрос статистики приходов за месяц"""
     try:
@@ -182,6 +191,7 @@ async def handle_arrivals_month(callback: CallbackQuery, session: AsyncSession):
 
 
 @router.callback_query(F.data == "statistics:expenses_user")
+@staff_required
 async def handle_user_expenses(callback: CallbackQuery, session: AsyncSession):
     """Обрабатывает запрос расходов пользователя"""
     try:
@@ -196,6 +206,7 @@ async def handle_user_expenses(callback: CallbackQuery, session: AsyncSession):
 
 
 @router.callback_query(F.data == "statistics:expenses_all")
+@staff_required
 async def handle_all_expenses(callback: CallbackQuery, session: AsyncSession):
     """Обрабатывает запрос всех расходов"""
     try:
@@ -219,6 +230,7 @@ async def handle_all_expenses(callback: CallbackQuery, session: AsyncSession):
 
 
 @router.callback_query(F.data == "statistics:expenses_detailed")
+@staff_required
 async def handle_detailed_expenses(callback: CallbackQuery, session: AsyncSession):
     """Обрабатывает запрос детализированного списка расходов"""
     try:
@@ -250,6 +262,7 @@ async def handle_detailed_expenses(callback: CallbackQuery, session: AsyncSessio
 
 
 @router.callback_query(F.data == "statistics:shipments_month")
+@staff_required
 async def handle_shipments_month(
         callback: CallbackQuery,
         session: AsyncSession
@@ -271,9 +284,11 @@ async def handle_shipments_month(
 
 
 @router.callback_query(F.data == "statistics:shipments_period")
+@staff_required
 async def handle_shipments_period_start(
         callback: CallbackQuery,
-        state: FSMContext
+        state: FSMContext,
+        session: AsyncSession
 ):
     """Запрос начальной даты периода для статистики отгрузок"""
     await callback.answer()
@@ -282,9 +297,11 @@ async def handle_shipments_period_start(
 
 
 @router.message(StatisticsStates.waiting_shipments_start_date)
+@staff_required
 async def handle_shipments_start_date(
         message: Message,
-        state: FSMContext
+        state: FSMContext,
+        session: AsyncSession
 ):
     """Обработка начальной даты периода"""
     try:
@@ -297,6 +314,7 @@ async def handle_shipments_start_date(
 
 
 @router.message(StatisticsStates.waiting_shipments_end_date)
+@staff_required
 async def handle_shipments_end_date(
         message: Message,
         state: FSMContext,

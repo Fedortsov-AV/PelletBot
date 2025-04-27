@@ -17,6 +17,7 @@ from bot.keyboards.users import get_user_list_keyboard
 from bot.services.auth import get_user_role, update_user_role, get_all_users, is_admin
 from bot.services.db_service import DBService
 from bot.services.role_service import get_all_roles
+from bot.services.wrapers import admin_required, staff_required
 
 logger = logging.getLogger(__name__)
 router = Router()
@@ -32,18 +33,20 @@ class DBErrorFilter(ExceptionTypeFilter):
 router.error.filter(DBErrorFilter())
 
 @router.message(Command("admin"))
+@admin_required
 async def admin_panel(message: types.Message, session: AsyncSession):
     """ Открывает панель администратора. """
-    role = await get_user_role(session, message.from_user.id)
-
-    if role != "admin":
-        await message.answer("❌ У вас нет прав для доступа в админ-панель.")
-        return
+    # role = await get_user_role(session, message.from_user.id)
+    #
+    # if role != "admin":
+    #     await message.answer("❌ У вас нет прав для доступа в админ-панель.")
+    #     return
 
     await message.answer("🔧 Панель администратора", reply_markup=admin_menu())
 
 
 @router.message(F.text == "🔧 Панель администратора")
+@admin_required
 async def admin_panel(message: types.Message, session: AsyncSession):
     role = await get_user_role(session, message.from_user.id)
 
@@ -54,6 +57,7 @@ async def admin_panel(message: types.Message, session: AsyncSession):
     await message.answer("🔧 Панель администратора", reply_markup=admin_menu())
 
 @router.callback_query(F.data == "admin_users")
+@admin_required
 async def show_users(callback: CallbackQuery, session: AsyncSession):
     """ Отображает список пользователей. """
     users = await get_all_users(session)
@@ -70,6 +74,7 @@ async def show_users(callback: CallbackQuery, session: AsyncSession):
     await callback.answer()
 
 @router.callback_query(F.data.startswith("change_role:"))
+@admin_required
 async def ask_for_role_selection(callback: CallbackQuery, session: AsyncSession):
     """ Запрашивает новую роль у администратора. """
     user_id = int(callback.data.split(":")[1])
@@ -88,6 +93,7 @@ async def ask_for_role_selection(callback: CallbackQuery, session: AsyncSession)
     await callback.answer()
 
 @router.callback_query(F.data.startswith("set_role:"))
+@admin_required
 async def set_user_role(callback: CallbackQuery, session: AsyncSession):
     """ Меняет роль пользователя в БД. """
     _, user_id, role = callback.data.split(":")
@@ -109,7 +115,8 @@ async def close_menu(callback: CallbackQuery):
 
 
 @router.callback_query(F.data == "admin_db")
-async def handle_db_management(callback: CallbackQuery):
+@admin_required
+async def handle_db_management(callback: CallbackQuery, session: AsyncSession):
     """Меню управления БД"""
     await callback.message.edit_text(
         "🗃 Управление базой данных\nВыберите таблицу:",
@@ -220,10 +227,10 @@ async def view_table_records_handler(callback: CallbackQuery, session: AsyncSess
                 reply_markup=record_actions_keyboard(table_name, record.id)
             )
 
-        await callback.message.answer(
-            f"🔍 Показано {len(records)} последних записей из '{table_name}'",
-            reply_markup=back_to_table_keyboard()
-        )
+        # await callback.message.answer(
+        #     f"🔍 Показано {len(records)} последних записей из '{table_name}'",
+        #     reply_markup=back_to_table_keyboard()
+        # )
 
     except ValueError as e:
         logger.error(f"Error: {str(e)}")

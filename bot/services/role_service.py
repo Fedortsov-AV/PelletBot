@@ -10,7 +10,7 @@ async def get_all_roles(session: AsyncSession):
 async def fill_roles(session: AsyncSession):
     """Заполняем таблицу ролей предустановленными значениями."""
     # Список ролей, которые мы хотим добавить в таблицу
-    roles = ["adminka", "manager", "operator", "anonymous"]
+    roles = ["admin", "manager", "operator", "anonymous"]
 
     for role_name in roles:
         # Проверяем, есть ли уже такая роль

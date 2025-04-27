@@ -9,17 +9,20 @@ from bot.models import Product
 from bot.services.packaging_service import calculate_packaging_ratio, get_raw_materials, \
     get_products_for_raw_material, save_packaging, update_stock_after_packaging, get_raw_material_availability
 from bot.services.user_service import get_user
+from bot.services.wrapers import restrict_anonymous
 
 router = Router()
 
 
 @router.message(F.text == "📦 Фасовка")
-async def show_packaging_menu(message: Message):
+@restrict_anonymous
+async def show_packaging_menu(message: Message, session: AsyncSession):
     """Открывает меню фасовки"""
     await message.answer("Выберите действие:", reply_markup=packaging_main_keyboard())
 
 
 @router.callback_query(F.data == "packaging_proportion")
+@restrict_anonymous
 async def start_packaging_proportion(
         callback: CallbackQuery,
         session: AsyncSession,
@@ -38,6 +41,7 @@ async def start_packaging_proportion(
     PackagingStates.waiting_for_raw_material,
     F.data.startswith("select_raw_")
 )
+@restrict_anonymous
 async def select_raw_material(
         callback: CallbackQuery,
         session: AsyncSession,
@@ -78,6 +82,7 @@ async def select_raw_material(
 
 
 @router.message(PackagingStates.waiting_for_ratio)
+@restrict_anonymous
 async def process_ratio(
         message: Message,
         session: AsyncSession,
@@ -119,6 +124,7 @@ async def process_ratio(
 
 
 @router.callback_query(F.data == "packaging_done")
+@restrict_anonymous
 async def start_packaging_done(
         callback: CallbackQuery,
         session: AsyncSession,
@@ -137,6 +143,7 @@ async def start_packaging_done(
     PackagingStates.waiting_for_done_raw_material,
     F.data.startswith("select_raw_")
 )
+@restrict_anonymous
 async def select_packaging_raw_material(
         callback: CallbackQuery,
         session: AsyncSession,
@@ -171,9 +178,11 @@ async def select_packaging_raw_material(
     PackagingStates.waiting_for_product,
     F.data.startswith("select_product_")
 )
+@restrict_anonymous
 async def select_packaging_product(
         callback: CallbackQuery,
-        state: FSMContext
+        state: FSMContext,
+        session: AsyncSession
 ):
     """Обработка выбора продукта и запрос количества"""
     product_id = int(callback.data.split("_")[-1])
@@ -183,6 +192,7 @@ async def select_packaging_product(
 
 
 @router.message(PackagingStates.waiting_for_amount)
+@restrict_anonymous
 async def process_packaging_amount(
         message: Message,
         state: FSMContext,

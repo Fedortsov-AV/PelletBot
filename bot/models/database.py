@@ -1,8 +1,9 @@
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 
+from bot.config import DATABASE_URL
 from bot.models.base import Base
 
-DATABASE_URL = "sqlite+aiosqlite:///warehouse_bot.db"  # Или ваша БД
+# DATABASE_URL = "sqlite+aiosqlite:///bot/warehouse_bot.db"  # Или ваша БД
 
 
 engine = create_async_engine(DATABASE_URL, echo=True)

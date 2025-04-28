@@ -13,8 +13,8 @@ class SchedulerService:
         self.scheduler.add_job(
             self._safe_send_report,
             'cron',
-            hour=4,
-            minute=12,
+            hour=2,
+            minute=00,
             timezone='Europe/Moscow'
         )
         self.scheduler.start()

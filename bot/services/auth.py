@@ -1,5 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+
+from bot.constants.roles import ANONYMOUS, ADMIN
 from bot.models.user import User
 from bot.services.wrapers import role_cache
 
@@ -9,7 +11,7 @@ async def get_user_by_telegram_id(session: AsyncSession, telegram_id: int) -> Us
     result = await session.execute(select(User).where(User.telegram_id == telegram_id))
     return result.scalars().first()
 
-async def register_user(session: AsyncSession, telegram_id: int, full_name: str, role: str = "anonymous") -> User:
+async def register_user(session: AsyncSession, telegram_id: int, full_name: str, role: str = ANONYMOUS) -> User:
     """Регистрирует нового пользователя"""
     user = User(telegram_id=telegram_id, full_name=full_name, role=role)
     session.add(user)
@@ -19,7 +21,7 @@ async def register_user(session: AsyncSession, telegram_id: int, full_name: str,
 async def get_user_role(session: AsyncSession, telegram_id: int) -> str:
     """Возвращает роль пользователя"""
     user = await get_user_by_telegram_id(session, telegram_id)
-    return user.role if user else "anonymous"
+    return user.role if user else ANONYMOUS
 
 
 async def update_user_role(session: AsyncSession, telegram_id: int, new_role: str) -> bool:
@@ -46,4 +48,4 @@ async def get_all_users(session: AsyncSession):
 async def is_admin(session: AsyncSession, telegram_id: int) -> bool:
     """Проверка, является ли пользователь администратором"""
     user = await get_user_by_telegram_id(session, telegram_id)
-    return user.role == "admin" if user else False
+    return user.role == ADMIN if user else False

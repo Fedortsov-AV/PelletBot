@@ -6,6 +6,7 @@ from typing import List
 from sqlalchemy import select, desc, inspect, exists
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from bot.constants.roles import ADMIN
 from bot.exceptions import InvalidDataError
 from bot.models import User, Product, RawProduct, Shipment, Arrival, Expense, ShipmentItem, Role, RawMaterialStorage, \
     ProductStorage, Packaging
@@ -191,6 +192,6 @@ class DBService:
 async def get_admin_ids(session: AsyncSession) -> List[int]:
     """Получает telegram_id всех администраторов"""
     result = await session.execute(
-        select(User.telegram_id).where(User.role == "admin")
+        select(User.telegram_id).where(User.role == ADMIN)
     )
     return [row[0] for row in result.all()]

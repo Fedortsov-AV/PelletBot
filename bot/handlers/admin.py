@@ -9,6 +9,7 @@ from select import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from bot.constants.roles import ADMIN
 from bot.exceptions import InvalidDataError
 from bot.fsm.admin import AddRecordStates
 from bot.keyboards.admin import admin_menu, record_actions_keyboard, table_actions_keyboard, cancel_keyboard, \
@@ -17,10 +18,11 @@ from bot.keyboards.users import get_user_list_keyboard
 from bot.services.auth import get_user_role, update_user_role, get_all_users, is_admin
 from bot.services.db_service import DBService
 from bot.services.role_service import get_all_roles
-from bot.services.wrapers import admin_required, staff_required
+from bot.services.wrapers import admin_required
 
 logger = logging.getLogger(__name__)
 router = Router()
+
 
 class DBErrorFilter(ExceptionTypeFilter):
     def __init__(self):
@@ -30,7 +32,9 @@ class DBErrorFilter(ExceptionTypeFilter):
         logger.error(f"Database error: {str(exception)}")
         return True
 
+
 router.error.filter(DBErrorFilter())
+
 
 @router.message(Command("admin"))
 @admin_required
@@ -50,11 +54,12 @@ async def admin_panel(message: types.Message, session: AsyncSession):
 async def admin_panel(message: types.Message, session: AsyncSession):
     role = await get_user_role(session, message.from_user.id)
 
-    if role != "admin":
+    if role != ADMIN:
         await message.answer("❌ У вас нет прав для доступа в админ-панель.")
         return
 
     await message.answer("🔧 Панель администратора", reply_markup=admin_menu())
+
 
 @router.callback_query(F.data == "admin_users")
 @admin_required
@@ -73,6 +78,7 @@ async def show_users(callback: CallbackQuery, session: AsyncSession):
         )
     await callback.answer()
 
+
 @router.callback_query(F.data.startswith("change_role:"))
 @admin_required
 async def ask_for_role_selection(callback: CallbackQuery, session: AsyncSession):
@@ -83,7 +89,8 @@ async def ask_for_role_selection(callback: CallbackQuery, session: AsyncSession)
     roles = await get_all_roles(session)
 
     # Генерируем клавиатуру с ролями
-    role_buttons = [types.InlineKeyboardButton(text=role.name, callback_data=f"set_role:{user_id}:{role.name}") for role in roles]
+    role_buttons = [types.InlineKeyboardButton(text=role.name, callback_data=f"set_role:{user_id}:{role.name}") for role
+                    in roles]
     keyboard = types.InlineKeyboardMarkup(inline_keyboard=[role_buttons])
 
     await callback.message.answer(
@@ -91,6 +98,7 @@ async def ask_for_role_selection(callback: CallbackQuery, session: AsyncSession)
         reply_markup=keyboard
     )
     await callback.answer()
+
 
 @router.callback_query(F.data.startswith("set_role:"))
 @admin_required
@@ -106,6 +114,7 @@ async def set_user_role(callback: CallbackQuery, session: AsyncSession):
     else:
         await callback.message.answer("❌ Ошибка: не удалось изменить роль.")
     await callback.answer()
+
 
 @router.callback_query(F.data == "admin_close")
 async def close_menu(callback: CallbackQuery):
@@ -125,7 +134,6 @@ async def handle_db_management(callback: CallbackQuery, session: AsyncSession):
     await callback.answer()
 
 
-
 @router.callback_query(F.data.startswith("select_table:"))
 async def handle_table_selection(callback: CallbackQuery):
     """Обработка выбора таблицы"""
@@ -137,24 +145,6 @@ async def handle_table_selection(callback: CallbackQuery):
     )
     await callback.answer()
 
-# @router.callback_query(F.data.startswith("view_records:"))
-# async def view_table_records(callback: CallbackQuery, session: AsyncSession):
-#     """Просмотр записей таблицы"""
-#     table_name = callback.data.split(":")[1]
-#     # Здесь реализация просмотра записей
-#     await callback.answer()
-#
-# @router.callback_query(F.data.startswith("add_record:"))
-# async def start_adding_record(callback: CallbackQuery, state: FSMContext):
-#     """Начало добавления записи"""
-#     table_name = callback.data.split(":")[1]
-#     await state.update_data(table_name=table_name)
-#     await callback.message.answer(
-#         f"Начато добавление записи в таблицу {table_name}\nВведите данные в формате:\n"
-#         "поле1=значение1\nполе2=значение2\n...",
-#         reply_markup=cancel_keyboard()
-#     )
-#     await callback.answer()
 
 async def ask_for_field(message: Message, state: FSMContext):
     """Запросить следующее поле"""
@@ -166,6 +156,7 @@ async def ask_for_field(message: Message, state: FSMContext):
         reply_markup=cancel_keyboard()
     )
     await state.set_state(AddRecordStates.waiting_field_value)
+
 
 @router.callback_query(F.data.startswith("db_view:"))
 async def handle_view_table(callback: CallbackQuery, session: AsyncSession):
@@ -241,6 +232,7 @@ async def view_table_records_handler(callback: CallbackQuery, session: AsyncSess
     finally:
         await callback.answer()
 
+
 def format_record(record) -> str:
     """Форматирует запись БД в читаемый текст"""
     fields = []
@@ -248,6 +240,7 @@ def format_record(record) -> str:
         if not key.startswith('_'):
             fields.append(f"<b>{key}:</b> {value}")
     return "\n".join(fields)
+
 
 @router.callback_query(F.data.startswith("delete:"))
 async def handle_delete_record(callback: CallbackQuery, session: AsyncSession):
@@ -390,6 +383,7 @@ async def view_table_structure(callback: CallbackQuery):
 
     await callback.message.answer(text)
     await callback.answer()
+
 
 @router.callback_query(F.data == "test_db")
 async def test_db_handler(callback: CallbackQuery, session: AsyncSession):

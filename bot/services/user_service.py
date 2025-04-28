@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
 from bot.config import ADMIN_IDS
+from bot.constants.roles import ADMIN, ANONYMOUS
 from bot.models.user import User
 
 async def get_user(session: AsyncSession, telegram_id: int) -> User | None:
@@ -15,7 +16,7 @@ async def create_user(session: AsyncSession, tg_user) -> User:
     user = User(
         telegram_id=tg_user.id,
         full_name=tg_user.full_name,
-        role="anonymous" if tg_user.id not in ADMIN_IDS else "admin"
+        role=ANONYMOUS if tg_user.id not in ADMIN_IDS else ADMIN
     )
     session.add(user)
     await session.commit()

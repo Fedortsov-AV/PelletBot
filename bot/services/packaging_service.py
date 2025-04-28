@@ -108,18 +108,18 @@ async def update_stock_after_packaging(
     await session.commit()
 
 
-async def check_raw_material_available(
-    session: AsyncSession,
-    raw_product_id: int,
-    required_amount: int
-) -> bool:
-    """Проверяет, достаточно ли сырья на складе"""
-    result = await session.execute(
-        select(RawMaterialStorage.amount)
-        .where(RawMaterialStorage.raw_product_id == raw_product_id)
-    )
-    current_amount = result.scalar_one_or_none()
-    return current_amount is not None and current_amount >= required_amount
+# async def check_raw_material_available(
+#     session: AsyncSession,
+#     raw_product_id: int,
+#     required_amount: int
+# ) -> bool:
+#     """Проверяет, достаточно ли сырья на складе"""
+#     result = await session.execute(
+#         select(RawMaterialStorage.amount)
+#         .where(RawMaterialStorage.raw_product_id == raw_product_id)
+#     )
+#     current_amount = result.scalar_one_or_none()
+#     return current_amount is not None and current_amount >= required_amount
 
 
 async def update_stock_after_packaging(

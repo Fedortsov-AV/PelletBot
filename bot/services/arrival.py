@@ -11,7 +11,7 @@ from bot.services.user_service import get_user
 
 
 async def add_arrival(session: AsyncSession, tg_id: int, type: str, amount: int):
-      # Атомарная транзакция
+    # Атомарная транзакция
     try:
         user = await get_user(session, tg_id)
         # Добавляем приход
@@ -25,12 +25,13 @@ async def add_arrival(session: AsyncSession, tg_id: int, type: str, amount: int)
         await session.flush()
 
         # Вызов обновления склада с передачей всех аргументов
-        await update_stock_arrival(session,type, amount)
+        await update_stock_arrival(session, type, amount)
         await session.commit()
         return arrival
     except SQLAlchemyError:
         await session.rollback()
         raise
+
 
 async def get_arrival_by_id(session: AsyncSession, id: int) -> Arrival | None:
     """
@@ -38,6 +39,7 @@ async def get_arrival_by_id(session: AsyncSession, id: int) -> Arrival | None:
     """
     result = await session.execute(select(Arrival).filter(Arrival.id == id))
     return result.scalar_one_or_none()  # Вернет объект Arrival или None, если записи нет
+
 
 async def get_arrivals_for_month(session: AsyncSession, user_id: int):
     """Получение приходов за текущий месяц"""
@@ -50,6 +52,7 @@ async def get_arrivals_for_month(session: AsyncSession, user_id: int):
     )
     return result.scalars().all()
 
+
 async def delete_arrival(session: AsyncSession, arrival_id: int):
     """Удаление прихода по ID"""
     result = await session.execute(select(Arrival).where(Arrival.id == arrival_id))
@@ -59,13 +62,13 @@ async def delete_arrival(session: AsyncSession, arrival_id: int):
         await session.commit()
     return arrival
 
+
 async def update_arrival_amount(session: AsyncSession, arrival_id: int, new_amount: int, arrival_type: str):
     """Изменение количества продукции в приходе"""
     try:
         result = await session.execute(select(Arrival).where(Arrival.id == arrival_id))
         arrival = result.scalars().first()
         if arrival:
-
             # Корректируем склад
             delta = new_amount - arrival.amount
             arrival.amount = new_amount
@@ -77,6 +80,7 @@ async def update_arrival_amount(session: AsyncSession, arrival_id: int, new_amou
     except SQLAlchemyError:
         await session.rollback()
         raise
+
 
 async def get_raw_product_names(session: AsyncSession):
     """Получить список всех наименований raw_products из БД"""

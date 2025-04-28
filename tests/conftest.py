@@ -1,5 +1,6 @@
 import os
 import sys
+from contextlib import asynccontextmanager
 
 import pytest
 from unittest.mock import AsyncMock, MagicMock, patch
@@ -27,42 +28,42 @@ from bot.middlewares.db import DBMiddleware
 
 @pytest.fixture(scope="session")
 def event_loop():
-    """Создает отдельный event loop для тестов"""
+    import asyncio
     loop = asyncio.new_event_loop()
     yield loop
     loop.close()
 
-
-@pytest_asyncio.fixture(scope="session")
+@pytest.fixture(scope="session")
 async def async_engine():
-    """Создает асинхронный движок для SQLite in-memory базы данных"""
     engine = create_async_engine(
         "sqlite+aiosqlite:///:memory:",
-        echo=False,
-        future=True,
+        echo=False
     )
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield engine
     await engine.dispose()
 
-
-@pytest.fixture(scope="function")
+@pytest.fixture
 def session_factory(async_engine):
-    """Фабрика для сессий"""
     return async_sessionmaker(
-        bind=async_engine,
-        class_=AsyncSession,
+        async_engine,
         expire_on_commit=False,
+        class_=AsyncSession
     )
 
-
+@asynccontextmanager
 @pytest_asyncio.fixture
-async def db_session(session_factory):
-    async with session_factory() as session:
+async def db_session(session_factory) -> AsyncSession:  # Правильная аннотация
+    session = session_factory()
+    try:
         yield session
-        print(f'!!!!!!!!!!!!!!!!!!!{session}')
+    except Exception as e:
+        print(e)
         await session.rollback()
+    finally:
+        await session.close()
+
 
 
 # --------------------------
@@ -244,13 +245,6 @@ def mock_db_session_with_data(mock_db_session):
 
     mock_db_session.execute.return_value = mock_result
     return mock_db_session
-
-@pytest.fixture(scope="session")
-def event_loop():
-    policy = asyncio.get_event_loop_policy()
-    loop = policy.new_event_loop()
-    yield loop
-    loop.close()
 
 
 @pytest.fixture

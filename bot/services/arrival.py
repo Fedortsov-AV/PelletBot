@@ -11,25 +11,26 @@ from bot.services.user_service import get_user
 
 
 async def add_arrival(session: AsyncSession, tg_id: int, type: str, amount: int):
-    async with session.begin():  # Атомарная транзакция
-        try:
-            user = await get_user(session, tg_id)
-            print(f'!!!!!!!!!!!!!!!!!!!!!!!!!!!Получен user_id {user.id=}')
-            # Добавляем приход
-            arrival = Arrival(
-                type=type,
-                amount=amount,
-                user_id=user.id,
-                date=datetime.utcnow(),
-            )
-            session.add(arrival)
+      # Атомарная транзакция
+    try:
+        user = await get_user(session, tg_id)
+        # Добавляем приход
+        arrival = Arrival(
+            type=type,
+            amount=amount,
+            user_id=user.id,
+            date=datetime.utcnow(),
+        )
+        session.add(arrival)
+        await session.flush()
 
-            # Вызов обновления склада с передачей всех аргументов
-            await update_stock_arrival(session,type, amount)
-            await session.commit()
-        except SQLAlchemyError:
-            await session.rollback()
-            raise
+        # Вызов обновления склада с передачей всех аргументов
+        await update_stock_arrival(session,type, amount)
+        await session.commit()
+        return arrival
+    except SQLAlchemyError:
+        await session.rollback()
+        raise
 
 async def get_arrival_by_id(session: AsyncSession, id: int) -> Arrival | None:
     """
@@ -71,6 +72,8 @@ async def update_arrival_amount(session: AsyncSession, arrival_id: int, new_amou
             arrival.type = arrival_type
             await update_stock_arrival(session, arrival.type, delta)  # Изменяем склад
             await session.commit()
+            return arrival
+
     except SQLAlchemyError:
         await session.rollback()
         raise

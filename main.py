@@ -9,6 +9,8 @@ from bot.middlewares.db import DBMiddleware  # Импортируем middleware
 from bot.models import create_tables
 from bot.models.database import init_db, async_session
 from bot.config import TOKEN
+from bot.context import app_context
+from bot.services.notification_service import NotificationService
 from bot.services.role_service import fill_roles
 
 logging.basicConfig(
@@ -35,9 +37,10 @@ async def main():
     dp.update.middleware(DBMiddleware())  # Подключаем middleware
     register_handlers(dp)  # Регистрация обработчиков
 
+
+
     await bot.set_my_commands([
         BotCommand(command="start", description="Запуск бота"),
-        BotCommand(command="help", description="Справка"),
     ])
 
     await dp.start_polling(bot)
@@ -47,6 +50,7 @@ async def on_startup(bot):
     from bot.services.scheduler import SchedulerService
     scheduler = SchedulerService(bot)
     await scheduler.start()
+    app_context.notification_service.set_bot(bot)
 
 
 if __name__ == "__main__":

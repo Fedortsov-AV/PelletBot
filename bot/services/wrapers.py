@@ -11,6 +11,7 @@ from cachetools import TTLCache
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
+from bot.constants.roles import ANONYMOUS, ADMIN, MANAGER
 from bot.context import app_context
 from bot.models.user import User
 from bot.services.db_service import DBService
@@ -43,7 +44,7 @@ async def get_or_create_user(session: AsyncSession, telegram_id: int, full_name:
 
     if not user:
         # Создаем нового пользователя
-        user = User(telegram_id=telegram_id, full_name=full_name, role="anonymous")
+        user = User(telegram_id=telegram_id, full_name=full_name, role=ANONYMOUS)
         session.add(user)
         await session.commit()
         await session.refresh(user)
@@ -66,7 +67,7 @@ def admin_required(func):
 
         user = await get_or_create_user(session, from_user.id, from_user.full_name)
 
-        if user.role != "admin":
+        if user.role != ADMIN:
             if isinstance(update, types.CallbackQuery):
                 await update.answer("🔐 Доступ закрыт! Только для администраторов.", show_alert=True)
             else:
@@ -91,7 +92,7 @@ def staff_required(func):
 
         user = await get_or_create_user(session, from_user.id, from_user.full_name)
 
-        if user.role not in ("admin", "manager"):
+        if user.role not in (ADMIN, MANAGER):
             message = "👮‍♂️ Недостаточно прав! Доступно для: администраторов, менеджеров и операторов."
             if isinstance(update, types.CallbackQuery):
                 await update.answer(message, show_alert=True)

@@ -71,19 +71,7 @@ async def update_stock_arrival(session: AsyncSession, type: str, amount: int):
     # await session.commit()  # Подтверждаем изменения в БД
 
 # ➖ Обновить после фасовки (атомарно)
-async def update_raw_stock(session: AsyncSession, used_pellets: int):
-     # Гарантируем атомарность
-    stock = await get_raw_material_storage(session)
 
-    # Проверка на недостаток пеллет перед фасовкой
-    if stock.pellets_6mm < used_pellets:
-        raise ValueError("Недостаточно пеллет на складе!")
-
-    stock.pellets_6mm -= used_pellets
-    stock.packs_3kg += small_packs
-    stock.packs_5kg += large_packs
-
-    await session.commit()
 
 async def edit_stock_arival(session: AsyncSession, arrival_id: int, new_amount: int):
     """Обновление количества прихода и склада"""

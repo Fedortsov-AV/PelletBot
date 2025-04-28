@@ -20,7 +20,6 @@ class NotificationService:
 
     async def _get_admin_ids(self, session: AsyncSession) -> list[int]:
         """Получаем ID администраторов"""
-        print(f'!!!!!!!!!!!!!! я в _get_admin_ids !!!!!!!!!!!!!!!!!')
         return await get_admin_ids(session)
 
     async def send_notification(
@@ -35,7 +34,6 @@ class NotificationService:
 
         try:
             admin_ids = await self._get_admin_ids(session)
-            print(f'!!!!!!!!!!!!!! я в {admin_ids=} !!!!!!!!!!!!!!!!!')
             for admin_id in admin_ids:
                 try:
                     await self.bot.send_message(admin_id, message)

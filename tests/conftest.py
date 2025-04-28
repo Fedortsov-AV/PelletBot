@@ -6,6 +6,7 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import asyncio
 from typing import AsyncGenerator
 
+import pytest_asyncio
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     AsyncSession,
@@ -26,48 +27,42 @@ from bot.middlewares.db import DBMiddleware
 
 @pytest.fixture(scope="session")
 def event_loop():
-    """Фикстура для создания event loop"""
-    policy = asyncio.get_event_loop_policy()
-    loop = policy.new_event_loop()
+    """Создает отдельный event loop для тестов"""
+    loop = asyncio.new_event_loop()
     yield loop
     loop.close()
 
 
-@pytest.fixture(scope="session")
+@pytest_asyncio.fixture(scope="session")
 async def async_engine():
-    """Движок для тестовой БД (в памяти)"""
+    """Создает асинхронный движок для SQLite in-memory базы данных"""
     engine = create_async_engine(
         "sqlite+aiosqlite:///:memory:",
         echo=False,
-        future=True
+        future=True,
     )
-
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
-
     yield engine
-
     await engine.dispose()
 
 
-@pytest.fixture
+@pytest.fixture(scope="function")
 def session_factory(async_engine):
-    """Фабрика сессий для тестов (аналог вашей async_session)"""
+    """Фабрика для сессий"""
     return async_sessionmaker(
-        async_engine,
+        bind=async_engine,
+        class_=AsyncSession,
         expire_on_commit=False,
-        class_=AsyncSession
     )
 
 
-@pytest.fixture
-async def db_session(session_factory) -> AsyncGenerator[AsyncSession, None]:
-    """Сессия БД с автоматическим откатом"""
+@pytest_asyncio.fixture
+async def db_session(session_factory):
     async with session_factory() as session:
-        try:
-            yield session
-        finally:
-            await session.rollback()
+        yield session
+        print(f'!!!!!!!!!!!!!!!!!!!{session}')
+        await session.rollback()
 
 
 # --------------------------

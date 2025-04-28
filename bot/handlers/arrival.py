@@ -8,13 +8,15 @@ from bot.keyboards.arrival import (
     arrival_types_keyboard, confirm_arrival_keyboard, arrival_main_keyboard, arrival_types_keyboard_for_edit
 )
 from bot.models.database import async_session
+
+
 from bot.services.arrival import (
     get_arrivals_for_month, add_arrival, update_arrival_amount, get_arrival_by_id
 )
 from bot.services.storage import update_stock_arrival, get_raw_material_storage, \
     get_raw_type_at_raw_product_id
 from bot.services.user_service import get_user
-from bot.services.wrapers import restrict_anonymous, staff_required
+from bot.services.wrapers import restrict_anonymous, staff_required, track_changes
 
 router = Router()
 
@@ -69,26 +71,16 @@ async def set_arrival_amount(message: Message, state: FSMContext):
 
 
 @router.callback_query(F.data == "arrival_confirm")
+@track_changes("поступления")
 async def confirm_arrival(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Подтверждение добавления прихода."""
     data = await state.get_data()
 
-    await add_arrival(session, callback.from_user.id, data["type"], data["amount"])
-    # async with session.begin():  # Атомарная операция
-    #     arrival = Arrival(
-    #         type=data["type"],
-    #         amount=data["amount"],
-    #         user_id=callback.from_user.id,
-    #         date=datetime.utcnow(),
-    #     )
-    #     session.add(arrival)
-    #
-    #     # Вызов обновления склада с передачей всех аргументов
-    #     await update_stock_arrival(session, data["type"], data["amount"])
-
+    arrival = await add_arrival(session, callback.from_user.id, data["type"], data["amount"])
+    print(f"Создан приход ID: {arrival.id}")
     await callback.message.edit_text("✅ Приход успешно добавлен!")
     await state.clear()
-
+    return arrival
 
 @router.callback_query(F.data == "arrival_cancel")
 async def cancel_arrival(callback: CallbackQuery, state: FSMContext):
@@ -125,6 +117,7 @@ async def view_arrivals_handler(callback: CallbackQuery, session: AsyncSession):
 
 @router.callback_query(F.data.startswith("delete_arrival:"))
 @staff_required
+@track_changes("поступления")
 async def delete_arrival_handler(callback: CallbackQuery, session: AsyncSession):
     """Удаление прихода и обновление склада."""
     arrival_id = int(callback.data.split(":")[1])
@@ -138,6 +131,7 @@ async def delete_arrival_handler(callback: CallbackQuery, session: AsyncSession)
 
     await callback.message.answer(f"✅ Приход {arrival_id} успешно удалён!")
     await callback.answer()
+    return arival
 
 
 @router.callback_query(F.data.startswith("edit_arrival:"))
@@ -167,7 +161,8 @@ async def set_arrival_amount_edit_handler(message: Message, state: FSMContext, s
 
 
 @router.callback_query(ArrivalState.type_edit, F.data.startswith("arrival_type_edit:"))
-async def set_arrival_type_edit_handler(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
+@track_changes("поступления")
+async def update_arrival_type_edit_handler(callback: CallbackQuery, state: FSMContext, session: AsyncSession):
     """Обновление количества прихода и склада."""
     arrival_type = callback.data.split(":")[1]
 
@@ -175,8 +170,9 @@ async def set_arrival_type_edit_handler(callback: CallbackQuery, state: FSMConte
     arrival_id = data['arrival_id']
     arrival_amount = data['arrival_amount']
 
-    await update_arrival_amount(session, arrival_id, arrival_amount, arrival_type)
+    arrival = await update_arrival_amount(session, arrival_id, arrival_amount, arrival_type)
 
     await callback.message.answer(
         f"✅ Количество прихода {arrival_type} ID={arrival_id} изменено на {arrival_amount} кг.")
     await state.clear()
+    return arrival

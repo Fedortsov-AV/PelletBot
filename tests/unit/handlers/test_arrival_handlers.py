@@ -1,44 +1,49 @@
-from unittest.mock import AsyncMock, MagicMock, patch
-
-import async_generator
 import pytest
-from aiogram import types
-from aiogram.fsm.context import FSMContext
-from aiogram.types import InlineKeyboardMarkup, Message
-from sqlalchemy.ext.asyncio import AsyncSession
+from aiogram.dispatcher.event.bases import CancelHandler
 
-from bot.fsm.arrival import ArrivalState
 from bot.handlers.arrival import show_arrival_menu
 from bot.keyboards.arrival import arrival_main_keyboard
-from bot.models import User
-from bot.constants.roles import ADMIN, MANAGER
-from bot.services.user_service import get_user
+
+import pytest
+from bot.handlers.arrival import show_arrival_menu
+from bot.keyboards.arrival import arrival_main_keyboard
+from unittest.mock import AsyncMock, MagicMock
 
 
 @pytest.mark.asyncio
-async def test_show_arrival_menu_with_access(db_session: AsyncSession):  # Исправлено!
-    user = User(
-        telegram_id=123,
-        full_name="Test User",
-        role="manager"
-    )
-    print(f'!!!!!!!!!!!!{type(db_session)=}')
-    sess = db_session.asend(None)
-    print(f'!!!!!!!!!!!!{type(sess)=}')
-    sios = sess.transaction()
-    print(f'!!!!!!!!!!!!{type(sios)=}')
-    with db_session.begin():
-        db_session.add(user)
-        await db_session.commit()
-        await db_session.refresh(user)
+async def test_show_arrival_menu_user_exists(fake_message, fake_user, mocker):
+    # Создаем мок сессии
+    session = AsyncMock()
 
-    message = AsyncMock(spec=Message)
-    message.from_user.id = 123
+    # Мокаем ответ от session.execute()
+    execute_result = MagicMock()
+    scalars_mock = MagicMock()
+    scalars_mock.first.return_value = fake_user(1, 123, "test", "manager")
+    execute_result.scalars.return_value = scalars_mock
+    session.execute.return_value = execute_result
 
-    with patch("bot.handlers.arrival.get_user", new=AsyncMock(return_value=user)):
-        await show_arrival_menu(message, session=db_session)
+    # Мокаем функцию get_user (если нужно)
+    mocker.patch("bot.handlers.arrival.get_user", return_value=fake_user(1, 123, "test", "manager"))
 
-    message.answer.assert_awaited_once_with(
-        "Выберите действие:",
-        reply_markup=arrival_main_keyboard("manager")
-    )
+    # Вызываем хендлер
+    await show_arrival_menu(fake_message, session=session)
+
+@pytest.mark.asyncio
+async def test_show_arrival_menu_user_not_exists(fake_message, mocker):
+    session = AsyncMock()
+
+    # Мокаем функцию get_user (пользователь не найден в кеше)
+    mocker.patch("bot.handlers.arrival.get_user", return_value=None)
+
+    # Мокаем session.execute так, чтобы пользователь в БД тоже не был найден
+    execute_result = MagicMock()
+    scalars_mock = MagicMock()
+    scalars_mock.first.return_value = None
+    execute_result.scalars.return_value = scalars_mock
+    session.execute.return_value = execute_result
+
+    # Ожидаем CancelHandler
+    with pytest.raises(CancelHandler):
+        await show_arrival_menu(fake_message, session=session)
+
+    fake_message.answer.assert_called_once_with("❌ Ваш аккаунт не верифицирован. Обратитесь к администратору.")

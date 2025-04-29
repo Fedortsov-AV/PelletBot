@@ -8,6 +8,7 @@ import asyncio
 from typing import AsyncGenerator
 
 import pytest_asyncio
+from aiogram.types import Message
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     AsyncSession,
@@ -96,7 +97,8 @@ def fake_user():
         id=123,
         is_bot=False,
         first_name="Test",
-        username="test_user"
+        username="test_user",
+
     )
 
 
@@ -108,18 +110,14 @@ def fake_chat():
         type="private"
     )
 
-
 @pytest.fixture
-def fake_message(fake_user, fake_chat):
-    """Фейковое сообщение"""
-    return types.Message(
-        message_id=1,
-        date=None,
-        chat=fake_chat,
-        from_user=fake_user,
-        text="/start"
-    )
-
+def fake_message(mocker):
+    message = mocker.MagicMock(spec=Message)
+    message.answer = AsyncMock()
+    message.from_user = MagicMock()
+    message.from_user.id = 123
+    message.from_user.is_anonymous = False
+    return message
 
 @pytest.fixture
 def fake_update(fake_message):
@@ -187,6 +185,29 @@ def mock_telegram_api():
 # --------------------------
 # Моки для тестов хендлеров
 # --------------------------
+
+@pytest.fixture
+def fake_user():
+    class User:
+        def __init__(self, id, telegram_id, fullname, role):
+            self.id = id
+            self.telegram_id = telegram_id
+            self.fullname = fullname
+            self.role = role
+    return User
+
+
+
+def mock_storage(mocker):
+    """
+    Фикстура для мокирования хранилища FSM (pytest-mock).
+    Методы set_data и update_data замоканы как AsyncMock.
+    """
+    storage = mocker.MagicMock()
+    # Мокаем асинхронные методы set_data и update_data для FSMContext
+    storage.set_data = mocker.AsyncMock(return_value=None)
+    storage.update_data = mocker.AsyncMock(return_value=None)
+    return storage
 
 @pytest.fixture
 def mock_message():

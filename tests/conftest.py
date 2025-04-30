@@ -8,7 +8,7 @@ import asyncio
 from typing import AsyncGenerator
 
 import pytest_asyncio
-from aiogram.types import Message
+from aiogram.types import Message, CallbackQuery
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     AsyncSession,
@@ -77,18 +77,15 @@ async def bot():
     return Bot(token="test:token")
 
 
-@pytest.fixture
-async def dispatcher(session_factory):
+@pytest_asyncio.fixture
+async def dispatcher(session_factory) -> Dispatcher:
     """Диспетчер с настроенным DBMiddleware"""
     dp = Dispatcher()
-
-    # Инициализируем ваш middleware с session_factory
     dp.update.outer_middleware(DBMiddleware(session_factory))
-
-    yield dp
-
+    await dp.emit_startup()  # Инициализация
+    yield dp                 # Возвращаем объект Dispatcher
+    await dp.emit_shutdown() # Завершение работы
     await dp.storage.close()
-
 
 @pytest.fixture
 def fake_user():
@@ -127,6 +124,22 @@ def fake_update(fake_message):
         message=fake_message
     )
 
+
+@pytest.fixture
+def fake_callback(mocker):
+    cb = mocker.MagicMock(spec=CallbackQuery)
+    cb.data = "arrival_type:pellets"
+    cb.message = mocker.MagicMock()
+    cb.message.edit_text = AsyncMock()
+    cb.message.answer = AsyncMock()
+
+    # Явно добавляем from_user с нужными полями
+    cb.from_user = mocker.MagicMock()
+    cb.from_user.id = 123
+    cb.from_user.full_name = "Test User"
+    cb.from_user.is_anonymous = False
+
+    return cb
 
 @pytest.fixture
 def fake_callback_query(fake_user, fake_chat):

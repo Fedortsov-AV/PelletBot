@@ -58,7 +58,7 @@ async def handle_stock_stats(callback: CallbackQuery, session: AsyncSession):
     try:
         stock_data = await get_stock_info(session)
         response_text = format_stock_info(stock_data)
-        await callback.message.answer(response_text, reply_markup=statistics_keyboard())
+        await callback.message.answer(response_text)
     except Exception as e:
         await callback.message.answer(f"⚠️ Ошибка при получении данных: {str(e)}")
 
@@ -73,7 +73,7 @@ async def handle_packed_month(callback: CallbackQuery, session: AsyncSession):
             f"📊 Расфасовано за текущий месяц:\n"
             f"• Пачки 3кг: {stats['packs_3kg']} шт.\n"
             f"• Пачки 5кг: {stats['packs_5kg']} шт.",
-            reply_markup=statistics_keyboard()
+            # reply_markup=statistics_keyboard()
         )
     except Exception as e:
         await callback.message.answer(f"⚠️ Ошибка при получении данных: {str(e)}")
@@ -113,7 +113,7 @@ async def process_packed_period(message: Message, state: FSMContext, session: As
             f"📆 Расфасовано за период {message.text}:\n"
             f"• Пачки 3кг: {stats['packs_3kg']} шт.\n"
             f"• Пачки 5кг: {stats['packs_5kg']} шт.",
-            reply_markup=statistics_keyboard()
+            # reply_markup=statistics_keyboard()
         )
     except ValueError as e:
         await message.answer(f"❌ Ошибка: {str(e)}\nПопробуйте снова.")
@@ -161,7 +161,7 @@ async def process_arrivals_period(message: Message, state: FSMContext, session: 
         for arrival_type, amount in arrivals.items():
             response += f"• {arrival_type}: {amount} кг\n"
 
-        await message.answer(response, reply_markup=statistics_keyboard())
+        await message.answer(response)
     except ValueError as e:
         await message.answer(f"❌ Ошибка: {str(e)}\nПопробуйте снова.")
     except Exception as e:
@@ -185,7 +185,7 @@ async def handle_arrivals_month(callback: CallbackQuery, session: AsyncSession):
         for arrival_type, amount in arrivals.items():
             response += f"• {arrival_type}: {amount} кг\n"
 
-        await callback.message.answer(response, reply_markup=statistics_keyboard())
+        await callback.message.answer(response)
     except Exception as e:
         await callback.message.answer(f"⚠️ Ошибка при получении данных: {str(e)}")
 
@@ -255,7 +255,7 @@ async def handle_detailed_expenses(callback: CallbackQuery, session: AsyncSessio
                     f"📅 Дата: {expense['date']}\n\n"
                 )
 
-            await callback.message.answer(response, reply_markup=statistics_keyboard())
+            await callback.message.answer(response)
 
     except Exception as e:
         await callback.message.answer(f"⚠️ Ошибка при получении данных: {str(e)}")
@@ -280,7 +280,7 @@ async def handle_shipments_month(
     for product_name, quantity in shipments:
         message_text += f"{product_name}: {quantity} шт.\n"
 
-    await callback.message.answer(message_text, reply_markup=statistics_keyboard())
+    await callback.message.answer(message_text)
 
 
 @router.callback_query(F.data == "statistics:shipments_period")
@@ -337,7 +337,7 @@ async def handle_shipments_end_date(
         for product_name, quantity in shipments:
             message_text += f"{product_name}: {quantity} шт.\n"
 
-        await message.answer(message_text, reply_markup=statistics_keyboard())
+        await message.answer(message_text)
         await state.clear()
 
     except ValueError:
@@ -347,4 +347,4 @@ async def handle_shipments_end_date(
 async def close_menu(callback: CallbackQuery):
     """Закрытие меню"""
     await callback.message.delete()
-    await callback.answer()
+

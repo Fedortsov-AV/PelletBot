@@ -9,6 +9,7 @@ from select import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from bot.services.arrival import delete_arrival
 from bot.constants.roles import ADMIN
 from bot.exceptions import InvalidDataError
 from bot.fsm.admin import AddRecordStates
@@ -248,6 +249,16 @@ async def handle_delete_record(callback: CallbackQuery, session: AsyncSession):
     try:
         _, table_name, record_id = callback.data.split(":")
         record_id = int(record_id)
+
+        # Для приходов используем специальный метод с обновлением склада
+        if table_name == "поступления":
+            await delete_arrival(session, record_id)
+            await callback.message.answer(
+                f"✅ Приход {record_id} удалён (склад обновлён).",
+                reply_markup=back_to_table_keyboard()
+            )
+            await callback.answer()
+            return
 
         model = DBService.get_model(table_name)
         if not model:

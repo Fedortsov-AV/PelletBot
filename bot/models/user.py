@@ -10,8 +10,11 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     telegram_id = Column(Integer, unique=True, nullable=False)
     full_name = Column(String, nullable=False)
-    role = Column(String, default="anonymous")  # Роли: admin, manager, operator, anonymous
+    role = Column(String, default="anonymous")
+    username = Column(String, unique=True, nullable=True)
+    hashed_password = Column(String, nullable=True)
+
     arrivals = relationship("Arrival", back_populates="user")
     expenses = relationship("Expense", back_populates="user")
     packagings = relationship("Packaging", back_populates="user")
-    shipments = relationship("Shipment", back_populates="user")  # Добавлена связь с отгрузками
+    shipments = relationship("Shipment", back_populates="user")

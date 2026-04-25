@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Фасовка</h1>
+
+<div class="toolbar">
+    {% if user.role in ('admin', 'manager', 'operator') %}
+    <a href="/packaging/add" class="btn btn-primary">+ Добавить фасовку</a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Дата</th>
+                <th>Пользователь</th>
+                <th>Сырьё</th>
+                <th>Продукт</th>
+                <th>Пачек</th>
+                <th>Потрачено сырья, кг</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in packagings %}
+            <tr>
+                <td>{{ p.id }}</td>
+                <td>{{ p.date.strftime('%d.%m.%Y %H:%M') }}</td>
+                <td>{{ p.user.full_name if p.user else '—' }}</td>
+                <td>{{ p.raw_product.name if p.raw_product else '—' }}</td>
+                <td>{{ p.product.name if p.product else '—' }}</td>
+                <td>{{ p.amount }}</td>
+                <td>{{ p.used_raw_material }}</td>
+                <td>
+                    {% if user.role in ('admin', 'manager') %}
+                    <a href="/packaging/{{ p.id }}/edit" class="btn btn-sm">✏️</a>
+                    <form action="/packaging/{{ p.id }}/delete" method="post" style="display:inline" onsubmit="return confirm('Удалить фасовку №{{ p.id }}?');">
+                        <button type="submit" class="btn btn-sm btn-danger">🗑️</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="8">Нет записей о фасовке</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if total_pages > 1 %}
+<div class="pagination">
+    {% for p in range(1, total_pages + 1) %}
+    <a href="/packaging?page={{ p }}" class="page-link {% if p == page %}active{% endif %}">{{ p }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

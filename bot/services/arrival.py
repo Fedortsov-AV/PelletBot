@@ -10,27 +10,60 @@ from bot.services.storage import update_stock_arrival
 from bot.services.user_service import get_user
 
 
-async def add_arrival(session: AsyncSession, tg_id: int, type: str, amount: int):
-    # Атомарная транзакция
+async def get_raw_products(session: AsyncSession) -> list[RawProduct]:
+    """Получить список всего сырья (id, name)."""
+    result = await session.execute(select(RawProduct))
+    return result.scalars().all()
+
+
+async def get_raw_product_names(session: AsyncSession):
+    """Оставлена для возможной обратной совместимости."""
+    result = await session.execute(select(RawProduct.name))
+    return [row[0] for row in result.all()]
+
+
+async def add_arrival(session: AsyncSession, tg_id: int, raw_product_id: int, amount: int):
+    """Добавление прихода с ID сырья."""
     try:
         user = await get_user(session, tg_id)
-        # Добавляем приход
         arrival = Arrival(
-            type=type,
+            raw_product_id=raw_product_id,
             amount=amount,
             user_id=user.id,
-            date=datetime.utcnow(),
+            date=datetime.utcnow()
         )
         session.add(arrival)
         await session.flush()
 
-        # Вызов обновления склада с передачей всех аргументов
-        await update_stock_arrival(session, type, amount)
+        await update_stock_arrival(session, raw_product_id, amount)
         await session.commit()
         return arrival
     except SQLAlchemyError:
         await session.rollback()
         raise
+
+
+# async def add_arrival(session: AsyncSession, tg_id: int, type: str, amount: int):
+#     # Атомарная транзакция
+#     try:
+#         user = await get_user(session, tg_id)
+#         # Добавляем приход
+#         arrival = Arrival(
+#             type=type,
+#             amount=amount,
+#             user_id=user.id,
+#             date=datetime.utcnow(),
+#         )
+#         session.add(arrival)
+#         await session.flush()
+#
+#         # Вызов обновления склада с передачей всех аргументов
+#         await update_stock_arrival(session, type, amount)
+#         await session.commit()
+#         return arrival
+#     except SQLAlchemyError:
+#         await session.rollback()
+#         raise
 
 
 async def get_arrival_by_id(session: AsyncSession, id: int) -> Arrival | None:
@@ -54,29 +87,30 @@ async def get_arrivals_for_month(session: AsyncSession, user_id: int):
 
 
 async def delete_arrival(session: AsyncSession, arrival_id: int):
-    """Удаление прихода по ID"""
-    result = await session.execute(select(Arrival).where(Arrival.id == arrival_id))
-    arrival = result.scalars().first()
+    """Удаление прихода с корректировкой склада."""
+    print("=== SERVICE DELETE CALLED ===")
+    arrival = await session.get(Arrival, arrival_id)
     if arrival:
+        print(
+            f"DEBUG DELETE: arrival_id={arrival_id}, raw_product_id={arrival.raw_product_id}, delta={-arrival.amount}")
+        delta = -arrival.amount
+        await update_stock_arrival(session, arrival.raw_product_id, delta)
         await session.delete(arrival)
         await session.commit()
     return arrival
 
 
-async def update_arrival_amount(session: AsyncSession, arrival_id: int, new_amount: int, arrival_type: str):
-    """Изменение количества продукции в приходе"""
+async def update_arrival_amount(session: AsyncSession, arrival_id: int, new_amount: int):
+    """Изменение количества прихода. Тип сырья не меняется."""
     try:
-        result = await session.execute(select(Arrival).where(Arrival.id == arrival_id))
-        arrival = result.scalars().first()
-        if arrival:
-            # Корректируем склад
-            delta = new_amount - arrival.amount
-            arrival.amount = new_amount
-            arrival.type = arrival_type
-            await update_stock_arrival(session, arrival.type, delta)  # Изменяем склад
-            await session.commit()
-            return arrival
-
+        arrival = await session.get(Arrival, arrival_id)
+        if not arrival:
+            return None
+        delta = new_amount - arrival.amount
+        arrival.amount = new_amount
+        await update_stock_arrival(session, arrival.raw_product_id, delta)
+        await session.commit()
+        return arrival
     except SQLAlchemyError:
         await session.rollback()
         raise

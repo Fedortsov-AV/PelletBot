@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель управления</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left">
+            <a href="/dashboard" class="nav-brand">PelletBot</a>
+            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+            <div class="nav-links" id="navLinks">
+                <a href="/arrivals">Приходы</a>
+                <a href="/packaging">Фасовка</a>
+                <a href="/shipments">Отгрузки</a>
+                <a href="/finance">Финансы</a>
+                <a href="/stats">Статистика</a>
+            </div>
+        </div>
+        <div class="nav-right">
+            {% if user %}
+            <span class="user-info">{{ user.full_name }} ({{ user.role }})</span>
+            <a href="/logout" class="logout-btn">Выход</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <main class="main-container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <script>
+        function toggleMenu() {
+            document.getElementById("navLinks").classList.toggle("active");
+        }
+    </script>
+</body>
+</html>

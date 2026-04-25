@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Добавить фасовку</h1>
+<div class="card" style="max-width: 500px;">
+    <form method="post" action="/packaging/add" id="packagingForm">
+        <div class="form-group">
+            <label for="raw_product_id">Сырьё</label>
+            <select id="raw_product_id" name="raw_product_id" required onchange="loadProducts(this.value)">
+                <option value="">— Выберите —</option>
+                {% for rp, amt in raw_materials %}
+                <option value="{{ rp.id }}">{{ rp.name }} (доступно {{ amt }} кг)</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="product_id">Продукт</label>
+            <select id="product_id" name="product_id" required disabled>
+                <option value="">— Сначала выберите сырьё —</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="amount">Количество пачек</label>
+            <input type="number" id="amount" name="amount" min="1" required>
+            <small id="maxPacksInfo"></small>
+        </div>
+        {% if request.query_params.error == 'insufficient_raw' %}
+        <div class="error-msg">Недостаточно сырья на складе!</div>
+        {% endif %}
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a href="/packaging" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+
+<script>
+async function loadProducts(rawId) {
+    const productSelect = document.getElementById('product_id');
+    const maxInfo = document.getElementById('maxPacksInfo');
+    productSelect.disabled = true;
+    productSelect.innerHTML = '<option value="">— Загрузка... —</option>';
+
+    if (!rawId) {
+        productSelect.innerHTML = '<option value="">— Сначала выберите сырьё —</option>';
+        return;
+    }
+
+    try {
+        const resp = await fetch(`/api/products-for-raw/${rawId}`);
+        const products = await resp.json();
+        productSelect.innerHTML = '<option value="">— Выберите продукт —</option>';
+        products.forEach(p => {
+            const option = document.createElement('option');
+            option.value = p.id;
+            option.textContent = `${p.name} (вес ${p.weight} кг, на складе ${p.stock} шт)`;
+            option.dataset.weight = p.weight;
+            option.dataset.stock = p.stock;
+            productSelect.appendChild(option);
+        });
+        productSelect.disabled = false;
+    } catch (e) {
+        productSelect.innerHTML = '<option value="">— Ошибка загрузки —</option>';
+    }
+}
+
+document.getElementById('amount').addEventListener('input', function() {
+    const productSelect = document.getElementById('product_id');
+    const selectedOption = productSelect.options[productSelect.selectedIndex];
+    if (selectedOption && selectedOption.dataset.weight) {
+        const weight = parseFloat(selectedOption.dataset.weight);
+        const stock = parseFloat(selectedOption.dataset.stock);
+        const amount = parseInt(this.value, 10);
+        if (!isNaN(amount) && amount > 0) {
+            const maxPacks = Math.floor(stock / weight);
+            document.getElementById('maxPacksInfo').textContent = `Максимально можно расфасовать: ${maxPacks} пачек`;
+        } else {
+            document.getElementById('maxPacksInfo').textContent = '';
+        }
+    }
+});
+</script>
+{% endblock %}

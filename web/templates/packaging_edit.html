@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Редактировать фасовку №{{ packaging.id }}</h1>
+<div class="card" style="max-width: 500px;">
+    <form method="post" action="/packaging/{{ packaging.id }}/edit">
+        <div class="form-group">
+            <label>Сырьё</label>
+            <input type="text" value="{{ packaging.raw_product.name }}" disabled>
+        </div>
+        <div class="form-group">
+            <label>Продукт</label>
+            <input type="text" value="{{ packaging.product.name }} (вес {{ packaging.product.weight }} кг)" disabled>
+        </div>
+        <div class="form-group">
+            <label for="amount">Количество пачек</label>
+            <input type="number" id="amount" name="amount" value="{{ packaging.amount }}" min="1" required>
+        </div>
+        {% if request.query_params.error == 'insufficient_raw' %}
+        <div class="error-msg">Недостаточно сырья на складе для такого количества!</div>
+        {% endif %}
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a href="/packaging" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Добавить приход</h1>
+<div class="card" style="max-width: 500px;">
+    <form method="post" action="/arrivals/add">
+        <div class="form-group">
+            <label for="raw_product_id">Сырьё</label>
+            <select id="raw_product_id" name="raw_product_id" required>
+                <option value="">— Выберите —</option>
+                {% for rp in raw_products %}
+                <option value="{{ rp.id }}">{{ rp.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="amount">Количество (кг)</label>
+            <input type="number" id="amount" name="amount" min="1" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a href="/arrivals" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}

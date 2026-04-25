@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Дашборд</h1>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-value">{{ raw_total }} кг</div>
+        <div class="stat-label">Остаток сырья</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ product_total }} шт</div>
+        <div class="stat-label">Готовой продукции</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ arrivals_count }}</div>
+        <div class="stat-label">Приходов за месяц</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-value">{{ shipments_total }} шт</div>
+        <div class="stat-label">Отгружено за месяц</div>
+    </div>
+</div>
+
+<div class="card">
+    <h2>Сырьё на складе</h2>
+    {% if raw_stocks %}
+    <table>
+        <thead><tr><th>Наименование</th><th>Остаток, кг</th></tr></thead>
+        <tbody>
+        {% for stock in raw_stocks %}
+        <tr>
+            <td>{{ stock.raw_product.name }}</td>
+            <td>{{ stock.amount }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Нет данных</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>Продукция на складе</h2>
+    {% if product_stocks %}
+    <table>
+        <thead><tr><th>Наименование</th><th>Остаток, шт</th></tr></thead>
+        <tbody>
+        {% for stock in product_stocks %}
+        <tr>
+            <td>{{ stock.product.name }}</td>
+            <td>{{ stock.amount }}</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Нет данных</p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -6,7 +6,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TOKEN = os.getenv("BOT_TOKEN")
+SECRET_KEY = os.getenv("SECRET_KEY")
+ALGORITHM = os.getenv("ALGORITHM")
 ADMIN_IDS = list(map(int, os.getenv("ADMIN_IDS", "").split(",")))
+print(f'ADMIN_IDS: {ADMIN_IDS}')
 # DATABASE_URL = os.getenv("DATABASE_URL")
 # DATABASE_URL = "sqlite+aiosqlite:///warehouse_bot.db"  # Асинхронное подключение
 

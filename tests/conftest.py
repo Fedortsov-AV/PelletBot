@@ -1,21 +1,16 @@
 import os
 import sys
-from contextlib import asynccontextmanager
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
-import asyncio
-from typing import AsyncGenerator
-
 import pytest_asyncio
-from aiogram.types import Message
+from aiogram import Bot, Dispatcher, types
+from aiogram.types import Message, CallbackQuery
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     AsyncSession,
     async_sessionmaker
 )
-from aiogram import Bot, Dispatcher, types
-from aiogram.dispatcher.middlewares.base import BaseMiddleware
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -34,6 +29,7 @@ def event_loop():
     yield loop
     loop.close()
 
+
 @pytest.fixture(scope="session")
 async def async_engine():
     engine = create_async_engine(
@@ -45,6 +41,7 @@ async def async_engine():
     yield engine
     await engine.dispose()
 
+
 @pytest.fixture
 def session_factory(async_engine):
     return async_sessionmaker(
@@ -53,18 +50,19 @@ def session_factory(async_engine):
         class_=AsyncSession
     )
 
-@asynccontextmanager
+
+# @asynccontextmanager
 @pytest_asyncio.fixture
 async def db_session(session_factory) -> AsyncSession:  # Правильная аннотация
-    session = session_factory()
-    try:
-        yield session
-    except Exception as e:
-        print(e)
-        await session.rollback()
-    finally:
-        await session.close()
-
+    async with session_factory() as session:
+        try:
+            yield session  # Возвращаем объект сессии
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
 
 
 # --------------------------
@@ -77,16 +75,16 @@ async def bot():
     return Bot(token="test:token")
 
 
-@pytest.fixture
+@pytest_asyncio.fixture
 async def dispatcher(session_factory):
-    """Диспетчер с настроенным DBMiddleware"""
     dp = Dispatcher()
-
-    # Инициализируем ваш middleware с session_factory
     dp.update.outer_middleware(DBMiddleware(session_factory))
+    context = dp.get_current_context(no_error=False)
+    await dp.emit_startup(context.bot, context.storage)
 
-    yield dp
+    yield dp  # <-- ВАЖНО! Здесь должен быть yield, а не return
 
+    await dp.emit_shutdown(context.bot, context.storage)
     await dp.storage.close()
 
 
@@ -110,6 +108,7 @@ def fake_chat():
         type="private"
     )
 
+
 @pytest.fixture
 def fake_message(mocker):
     message = mocker.MagicMock(spec=Message)
@@ -119,6 +118,7 @@ def fake_message(mocker):
     message.from_user.is_anonymous = False
     return message
 
+
 @pytest.fixture
 def fake_update(fake_message):
     """Фейковое обновление"""
@@ -126,6 +126,23 @@ def fake_update(fake_message):
         update_id=1,
         message=fake_message
     )
+
+
+@pytest.fixture
+def fake_callback(mocker):
+    cb = mocker.MagicMock(spec=CallbackQuery)
+    cb.data = "arrival_type:pellets"
+    cb.message = mocker.MagicMock()
+    cb.message.edit_text = AsyncMock()
+    cb.message.answer = AsyncMock()
+
+    # Явно добавляем from_user с нужными полями
+    cb.from_user = mocker.MagicMock()
+    cb.from_user.id = 123
+    cb.from_user.full_name = "Test User"
+    cb.from_user.is_anonymous = False
+
+    return cb
 
 
 @pytest.fixture
@@ -182,6 +199,7 @@ def mock_telegram_api():
             patch("aiogram.Bot.answer_callback_query"):
         yield
 
+
 # --------------------------
 # Моки для тестов хендлеров
 # --------------------------
@@ -194,8 +212,8 @@ def fake_user():
             self.telegram_id = telegram_id
             self.fullname = fullname
             self.role = role
-    return User
 
+    return User
 
 
 def mock_storage(mocker):
@@ -209,6 +227,7 @@ def mock_storage(mocker):
     storage.update_data = mocker.AsyncMock(return_value=None)
     return storage
 
+
 @pytest.fixture
 def mock_message():
     """Фейковое сообщение с пользователем"""
@@ -221,6 +240,7 @@ def mock_message():
     message.answer = AsyncMock()
     message.reply = AsyncMock()
     return message
+
 
 @pytest.fixture
 def mock_callback():
@@ -237,6 +257,7 @@ def mock_callback():
     callback.answer = AsyncMock()
     return callback
 
+
 @pytest.fixture
 def mock_state():
     state = AsyncMock()
@@ -245,6 +266,7 @@ def mock_state():
     state.get_data = AsyncMock()
     state.clear = AsyncMock()
     return state
+
 
 @pytest.fixture
 def mock_db_session():
@@ -286,6 +308,7 @@ def mock_db_session():
     session.add = AsyncMock()
 
     return session
+
 
 # --------------------------
 # Тестовые данные

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ table_name }}</h1>
+<div class="toolbar">
+    <a href="/admin/tables/{{ table_name }}/add" class="btn btn-primary">+ Добавить</a>
+</div>
+<div class="card" style="overflow-x: auto;">
+    <table>
+        <thead>
+            <tr>
+                {% for col in columns %}
+                <th>{{ col }}</th>
+                {% endfor %}
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for rec in records %}
+            <tr>
+                {% for col in columns %}
+                <td>{{ rec[col] }}</td>
+                {% endfor %}
+                <td>
+                    <a href="/admin/tables/{{ table_name }}/{{ rec.id }}/edit" class="btn btn-sm">✏️</a>
+                    <form action="/admin/tables/{{ table_name }}/{{ rec.id }}/delete" method="post" style="display:inline" onsubmit="return confirm('Удалить запись?');">
+                        <button class="btn btn-sm btn-danger">🗑️</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

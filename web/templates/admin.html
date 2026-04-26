@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Админ-панель</h1>
+<div class="stats-grid">
+    <a href="/admin/users" class="stat-card" style="text-decoration:none;">
+        <div class="stat-value">👥</div>
+        <div class="stat-label">Пользователи</div>
+    </a>
+    <a href="/admin/tables" class="stat-card" style="text-decoration:none;">
+        <div class="stat-value">🗄️</div>
+        <div class="stat-label">Таблицы БД</div>
+    </a>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Редактировать запись в {{ table_name }}</h1>
+<div class="card" style="max-width:500px;">
+    <form method="post">
+        {% for field in fields %}
+        <div class="form-group">
+            <label>{{ field.name }}</label>
+            {% set ftype = field.type.upper() %}
+            {% if "INT" in ftype %}
+            <input type="number" name="{{ field.name }}" value="{{ values[field.name] or '' }}" required>
+            {% elif "FLOAT" in ftype or "NUMERIC" in ftype or "REAL" in ftype %}
+            <input type="number" step="any" name="{{ field.name }}" value="{{ values[field.name] or '' }}" required>
+            {% elif "BOOLEAN" in ftype %}
+            <input type="checkbox" name="{{ field.name }}" value="1" {% if values[field.name] in ('True', 'true', '1') %}checked{% endif %}>
+            {% elif "DATETIME" in ftype %}
+            <input type="datetime-local" name="{{ field.name }}" value="{{ values[field.name] or '' }}" required>
+            {% elif "DATE" in ftype %}
+            <input type="date" name="{{ field.name }}" value="{{ values[field.name] or '' }}" required>
+            {% else %}
+            <input type="text" name="{{ field.name }}" value="{{ values[field.name] or '' }}" required>
+            {% endif %}
+        </div>
+        {% endfor %}
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a href="/admin/tables/{{ table_name }}" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}

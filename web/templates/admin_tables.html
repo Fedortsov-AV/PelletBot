@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Таблицы базы данных</h1>
+<div class="card">
+    <ul>
+        {% for table in tables %}
+        <li><a href="/admin/tables/{{ table }}">{{ table }}</a></li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

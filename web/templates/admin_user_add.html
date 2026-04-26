@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Добавить пользователя</h1>
+<div class="card" style="max-width:500px;">
+    <form method="post">
+        <div class="form-group">
+            <label>Telegram ID</label>
+            <input type="number" name="telegram_id" required>
+        </div>
+        <div class="form-group">
+            <label>Полное имя</label>
+            <input type="text" name="full_name" required>
+        </div>
+        <div class="form-group">
+            <label>Логин</label>
+            <input type="text" name="username" required>
+        </div>
+        <div class="form-group">
+            <label>Пароль</label>
+            <input type="password" name="password" required>
+        </div>
+        <div class="form-group">
+            <label>Роль</label>
+            <select name="role">
+                {% for r in roles %}
+                <option value="{{ r }}">{{ r }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Создать</button>
+        <a href="/admin/users" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}

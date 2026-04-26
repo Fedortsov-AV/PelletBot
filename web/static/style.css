@@ -360,3 +360,17 @@ small {
     color: var(--text-light);
     font-size: 0.85rem;
 }
+
+.item-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.item-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}

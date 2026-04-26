@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Отгрузки</h1>
+
+<div class="toolbar">
+    {% if user.role in ('admin', 'manager') %}
+    <a href="/shipments/add" class="btn btn-primary">+ Новая отгрузка</a>
+    {% endif %}
+</div>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Дата</th>
+                <th>Пользователь</th>
+                <th>Позиций</th>
+                <th>Всего единиц</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for s in shipments %}
+            <tr>
+                <td><a href="/shipments/{{ s.id }}">{{ s.id }}</a></td>
+                <td>{{ s.timestamp.strftime('%d.%m.%Y %H:%M') }}</td>
+                <td>{{ s.user.full_name if s.user else '—' }}</td>
+                <td>{{ s.shipment_items|length }}</td>
+                <td>{{ s.shipment_items|sum(attribute='quantity') }}</td>
+                <td>
+                    {% if user.role in ('admin', 'manager') %}
+                    <form action="/shipments/{{ s.id }}/delete" method="post" style="display:inline" onsubmit="return confirm('Удалить отгрузку №{{ s.id }}? Товары вернутся на склад.');">
+                        <button type="submit" class="btn btn-sm btn-danger">🗑️</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6">Нет отгрузок</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if total_pages > 1 %}
+<div class="pagination">
+    {% for p in range(1, total_pages + 1) %}
+    <a href="/shipments?page={{ p }}" class="page-link {% if p == page %}active{% endif %}">{{ p }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

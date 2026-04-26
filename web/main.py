@@ -10,6 +10,7 @@ from .dashboard import router as dashboard_router
 from .arrivals import router as arrivals_router
 from .packaging import router as packaging_router
 from .shipments import router as shipments_router
+from .admin import router as admin_router
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")), name="static")
@@ -18,6 +19,7 @@ app.include_router(dashboard_router)
 app.include_router(arrivals_router)
 app.include_router(packaging_router)
 app.include_router(shipments_router)
+app.include_router(admin_router)
 
 @app.get("/")
 async def root():

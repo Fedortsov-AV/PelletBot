@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Пользователи</h1>
+<div class="toolbar">
+    <a href="/admin/users/add" class="btn btn-primary">+ Добавить</a>
+</div>
+<div class="card">
+    <table>
+        <tr><th>ID</th><th>Telegram ID</th><th>Имя</th><th>Логин</th><th>Роль</th><th>Действия</th></tr>
+        {% for user in users %}
+        <tr>
+            <td>{{ user.id }}</td>
+            <td>{{ user.telegram_id }}</td>
+            <td>{{ user.full_name }}</td>
+            <td>{{ user.username }}</td>
+            <td>{{ user.role }}</td>
+            <td>
+                <a href="/admin/users/{{ user.id }}/edit" class="btn btn-sm">✏️</a>
+                <form action="/admin/users/{{ user.id }}/delete" method="post" style="display:inline" onsubmit="return confirm('Удалить пользователя?');">
+                    <button class="btn btn-sm btn-danger">🗑️</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

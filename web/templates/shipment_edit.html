@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Редактировать отгрузку №{{ shipment.id }}</h1>
+<div class="card" style="max-width: 800px;">
+    <form method="post" action="/shipments/{{ shipment.id }}/edit">
+        <div class="form-group">
+            <label for="timestamp">Дата и время</label>
+            <input type="datetime-local" id="timestamp" name="timestamp"
+                   value="{{ shipment.timestamp.strftime('%Y-%m-%dT%H:%M') }}" required>
+        </div>
+
+        <h2>Товары в отгрузке</h2>
+        <div id="itemsContainer">
+            {% for item in existing_items %}
+            <div class="item-row">
+                <input type="hidden" name="existing_item_id" value="{{ item.shipment_item_id }}">
+                <select disabled style="flex: 2;">
+                    <option>{{ item.product_name }}</option>
+                </select>
+                <input type="number" name="quantity" value="{{ item.quantity }}" min="0"
+                       style="flex: 1;" placeholder="Кол-во">
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="margin: 1rem 0;">
+            <button type="button" onclick="addNewRow()" class="btn btn-secondary">+ Добавить товар</button>
+        </div>
+
+        {% if request.query_params.error %}
+        <div class="error-msg">
+            {% if request.query_params.error == 'invalid_date' %}Неверный формат даты.
+            {% elif request.query_params.error == 'product_not_found' %}Продукт не найден.
+            {% else %}Ошибка: {{ request.query_params.error }}{% endif %}
+        </div>
+        {% endif %}
+
+        <div style="margin-top: 1rem;">
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <a href="/shipments/{{ shipment.id }}" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+
+<script>
+function addNewRow() {
+    const container = document.getElementById('itemsContainer');
+    const div = document.createElement('div');
+    div.className = 'item-row';
+    div.innerHTML = `
+        <select name="new_product_id" style="flex: 2;" required>
+            <option value="">— Выберите продукт —</option>
+            {% for product in available_products %}
+            <option value="{{ product.id }}">{{ product.name }} ({{ product.amount }} шт.)</option>
+            {% endfor %}
+        </select>
+        <input type="number" name="new_quantity" min="1" value="1" style="flex: 1;" required>
+        <button type="button" onclick="this.parentElement.remove()" class="btn btn-sm btn-danger">✕</button>
+    `;
+    container.appendChild(div);
+}
+</script>
+{% endblock %}

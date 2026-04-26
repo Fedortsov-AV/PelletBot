@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Новая отгрузка</h1>
+<div class="card" style="max-width: 700px;">
+    <form method="post" action="/shipments/add" id="shipmentForm">
+        <div id="itemsContainer">
+            <div class="item-row" style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+                <select name="product_id" required style="flex: 2;">
+                    <option value="">— Выберите продукт —</option>
+                    {% for product, amount in available_products %}
+                    <option value="{{ product.id }}">{{ product.name }} ({{ product.amount }} шт.)</option>
+                    {% endfor %}
+                </select>
+                <input type="number" name="quantity" placeholder="Кол-во" min="1" required style="flex: 1;">
+            </div>
+        </div>
+        <button type="button" onclick="addItemRow()" class="btn btn-secondary">+ Добавить товар</button>
+
+        {% if request.query_params.error %}
+        <div class="error-msg">
+            {% if request.query_params.error == 'invalid' %}Неверные данные формы.{% elif request.query_params.error == 'no_items' %}Нет товаров для отгрузки.{% else %}Ошибка: {{ request.query_params.error }}{% endif %}
+        </div>
+        {% endif %}
+
+        <div style="margin-top: 1rem;">
+            <button type="submit" class="btn btn-primary">Создать отгрузку</button>
+            <a href="/shipments" class="btn btn-secondary">Отмена</a>
+        </div>
+    </form>
+</div>
+
+<script>
+function addItemRow() {
+    const container = document.getElementById('itemsContainer');
+    const template = container.querySelector('.item-row').cloneNode(true);
+    // Очищаем значения в скопированной строке
+    template.querySelector('select').selectedIndex = 0;
+    template.querySelector('input[type=number]').value = '';
+    container.appendChild(template);
+}
+</script>
+{% endblock %}

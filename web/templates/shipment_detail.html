@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Отгрузка №{{ shipment.id }}</h1>
+<p><strong>Дата:</strong> {{ shipment.timestamp.strftime('%d.%m.%Y %H:%M') }}</p>
+<p><strong>Пользователь:</strong> {{ shipment.user.full_name if shipment.user else '—' }}</p>
+
+<h2>Товары</h2>
+<table>
+    <thead>
+        <tr><th>Продукт</th><th>Количество</th></tr>
+    </thead>
+    <tbody>
+        {% for item in shipment.shipment_items %}
+        <tr>
+            <td>{{ item.product.name }}</td>
+            <td>{{ item.quantity }} шт.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if user.role in ('admin', 'manager') %}
+<a href="/shipments/{{ shipment.id }}/edit" class="btn btn-primary">✏️ Редактировать</a>
+{% endif %}
+<a href="/shipments" class="btn btn-secondary">← Назад к списку</a>
+{% endblock %}

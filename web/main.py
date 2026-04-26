@@ -4,6 +4,7 @@ from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import RedirectResponse
 from starlette.requests import Request
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from .auth import router as auth_router
 from .dashboard import router as dashboard_router
@@ -12,7 +13,18 @@ from .packaging import router as packaging_router
 from .shipments import router as shipments_router
 from .admin import router as admin_router
 
+
+class LoginRedirectMiddleware(BaseHTTPMiddleware):
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        if response.status_code == 401:
+            # Редиректим только если клиент ожидает HTML (браузер)
+            if "text/html" in request.headers.get("accept", ""):
+                return RedirectResponse(url="/login")
+        return response
+
 app = FastAPI()
+app.add_middleware(LoginRedirectMiddleware)
 app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")), name="static")
 app.include_router(auth_router)
 app.include_router(dashboard_router)

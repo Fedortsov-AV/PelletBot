@@ -12,10 +12,10 @@ from .arrivals import router as arrivals_router
 from .packaging import router as packaging_router
 from .shipments import router as shipments_router
 from .admin import router as admin_router
-from .statistics import router as stats_router
+from .cost_calc import router as stats_router
 from .materials import router as materials_router
 from .finance import router as finance_router
-
+from .stats import router as stats_router
 
 class LoginRedirectMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -38,6 +38,7 @@ app.include_router(admin_router)
 app.include_router(stats_router)
 app.include_router(materials_router)
 app.include_router(finance_router)
+app.include_router(stats_router)
 
 
 @app.get("/")

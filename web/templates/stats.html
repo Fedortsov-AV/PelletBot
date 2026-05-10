@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Статистика</h1>
+
+<!-- Блок итогов за месяц -->
+<div class="card">
+    <h2>Итоги за последний закрытый месяц (<span id="periodLabel"></span>)</h2>
+    <div class="stats-grid" id="totalsGrid">
+        <div class="stat-card"><div class="stat-value" id="totalKg">-</div><div class="stat-label">Выпуск, кг</div></div>
+        <div class="stat-card"><div class="stat-value" id="totalCost">-</div><div class="stat-label">Себестоимость, руб.</div></div>
+        <div class="stat-card"><div class="stat-value" id="costPerKg">-</div><div class="stat-label">Себестоимость 1 кг, руб.</div></div>
+        <div class="stat-card"><div class="stat-value" id="materialCost">-</div><div class="stat-label">Прямые затраты, руб.</div></div>
+        <div class="stat-card"><div class="stat-value" id="overhead">-</div><div class="stat-label">Накладные расходы, руб.</div></div>
+    </div>
+</div>
+
+<!-- График выпуска по месяцам -->
+<div class="card">
+    <h2>Выпуск продукции за последние 12 месяцев</h2>
+    <canvas id="outputChart" width="400" height="200"></canvas>
+</div>
+
+<!-- График затрат по категориям (последний месяц) -->
+<div class="card">
+    <h2>Структура затрат за последний месяц</h2>
+    <canvas id="expenseChart" width="400" height="200"></canvas>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// Загрузка данных при старте
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadTotals();
+    await loadMonthlyOutput();
+    await loadExpenseStructure();
+});
+
+async function loadTotals() {
+    const resp = await fetch('/api/stats/totals');
+    const data = await resp.json();
+    document.getElementById('periodLabel').textContent = data.period;
+    document.getElementById('totalKg').textContent = data.total_kg;
+    document.getElementById('totalCost').textContent = data.total_cost;
+    document.getElementById('costPerKg').textContent = data.cost_per_kg;
+    document.getElementById('materialCost').textContent = data.material_cost;
+    document.getElementById('overhead').textContent = data.overhead;
+}
+
+let outputChartInstance = null;
+let expenseChartInstance = null;
+
+async function loadMonthlyOutput() {
+    const resp = await fetch('/api/stats/monthly-output');
+    const data = await resp.json();
+    const ctx = document.getElementById('outputChart').getContext('2d');
+    if (outputChartInstance) outputChartInstance.destroy();
+    outputChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.labels,
+            datasets: [{
+                label: 'Выпуск (кг)',
+                data: data.values,
+                backgroundColor: 'rgba(52, 152, 219, 0.6)',
+                borderColor: '#3498db',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, title: { display: true, text: 'кг' } } }
+        }
+    });
+}
+
+async function loadExpenseStructure() {
+    const resp = await fetch('/api/stats/expenses-by-category');
+    const rawData = await resp.json();
+    // Преобразуем категории в читаемые названия
+    const categoryLabels = {
+        'raw_material_purchase': 'Сырьё',
+        'packaging_material': 'Материалы',
+        'fuel': 'Топливо',
+        'salary': 'Зарплата',
+        'rent': 'Аренда',
+        'electricity': 'Электричество',
+        'repair': 'Ремонт',
+        'other': 'Прочее'
+    };
+    const labels = rawData.map(d => categoryLabels[d.category] || d.category);
+    const values = rawData.map(d => d.total);
+
+    const ctx = document.getElementById('expenseChart').getContext('2d');
+    if (expenseChartInstance) expenseChartInstance.destroy();
+    expenseChartInstance = new Chart(ctx, {
+        type: 'pie',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: values,
+                backgroundColor: [
+                    '#3498db', '#2ecc71', '#e67e22', '#9b59b6',
+                    '#1abc9c', '#e74c3c', '#f1c40f', '#95a5a6'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => `${ctx.label}: ${ctx.raw.toFixed(2)} руб.`
+                    }
+                }
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

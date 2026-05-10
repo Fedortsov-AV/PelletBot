@@ -15,6 +15,6 @@ class User(Base):
     hashed_password = Column(String, nullable=True)
 
     arrivals = relationship("Arrival", back_populates="user")
-    expenses = relationship("Expense", back_populates="user")
+    expenses = relationship("Expense", back_populates="user", foreign_keys="Expense.user_id")
     packagings = relationship("Packaging", back_populates="user")
     shipments = relationship("Shipment", back_populates="user")

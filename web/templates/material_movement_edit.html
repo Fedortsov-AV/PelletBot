@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Редактировать закупку #{{ movement.id }}</h1>
+<div class="card" style="max-width:500px;">
+    <form method="post">
+        <div class="form-group">
+            <label>Материал</label>
+            <input type="text" value="{{ movement.material.name }}" disabled>
+        </div>
+        <div class="form-group">
+            <label for="quantity">Количество</label>
+            <input type="number" step="0.01" id="quantity" name="quantity" value="{{ movement.quantity }}" required>
+        </div>
+        <div class="form-group">
+            <label>Единица измерения</label>
+            <input type="text" value="{{ movement.unit }}" disabled>
+        </div>
+        <div class="form-group">
+            <label for="unit_price">Цена за единицу</label>
+            <input type="number" step="0.01" id="unit_price" name="unit_price" value="{{ movement.unit_price }}" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a href="/materials/{{ movement.material_id }}/movements" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}

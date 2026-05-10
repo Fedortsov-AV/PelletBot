@@ -9,7 +9,10 @@ from bot.models.role import Role
 from bot.models.shipment import Shipment, ShipmentItem
 from bot.models.storage import ProductStorage, RawMaterialStorage
 from bot.models.user import User
-
+from bot.models.material import Material
+from bot.models.material_movement import MaterialMovement
+from bot.models.packaging_material import PackagingMaterial
+from bot.models.cost_calculation import CostCalculation
 
 async def create_tables():
     async with engine.begin() as conn:

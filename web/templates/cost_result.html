@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Результат расчёта себестоимости</h1>
+<div class="card">
+    <p><strong>Период:</strong> {{ calc.period_start }} – {{ calc.period_end }}</p>
+    <p><strong>Прямые материальные затраты:</strong> {{ calc.total_material_cost|round(2) }} руб.</p>
+    <p><strong>Накладные расходы:</strong> {{ calc.total_overhead_cost|round(2) }} руб.</p>
+    <p><strong>Общий выпуск:</strong> {{ calc.total_produced_kg|round(2) }} кг</p>
+    <p><strong>Себестоимость 1 кг:</strong> {{ calc.cost_per_kg|round(2) }} руб.</p>
+    {% if calc.cost_per_kg %}
+    <p><strong>Себестоимость пачки 3 кг:</strong> {{ (calc.cost_per_kg * 3)|round(2) }} руб.</p>
+    <p><strong>Себестоимость пачки 5 кг:</strong> {{ (calc.cost_per_kg * 5)|round(2) }} руб.</p>
+    {% endif %}
+</div>
+<a href="/cost-calculation" class="btn btn-secondary">Новый расчёт</a>
+{% endblock %}

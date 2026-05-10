@@ -53,16 +53,18 @@ body {
 
 .nav-links {
     display: flex;
-    gap: 0.5rem;
+    gap: 0.3rem;
+    flex-wrap: wrap;      /* позволит переносить на маленьких экранах, если гамбургер не включён */
 }
 
 .nav-links a {
     color: rgba(255,255,255,0.85);
     text-decoration: none;
-    padding: 0.5rem 0.8rem;
+    padding: 0.5rem 0.6rem;
     border-radius: 6px;
-    transition: 0.2s;
-    font-size: 0.95rem;
+    transition: background 0.2s, color 0.2s;
+    font-size: 0.9rem;
+    white-space: nowrap;
 }
 
 .nav-links a:hover {
@@ -79,22 +81,23 @@ body {
 .user-info {
     font-size: 0.9rem;
     color: rgba(255,255,255,0.9);
+    white-space: nowrap;
 }
 
-.logout-btn {
-    background: var(--danger);
+.logout-btn, .admin-link {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.5);
     color: #fff;
-    border: none;
-    padding: 0.4rem 1rem;
+    padding: 0.3rem 0.8rem;
     border-radius: 6px;
     cursor: pointer;
     font-size: 0.9rem;
     font-weight: 500;
     transition: background 0.2s;
+    text-decoration: none;
 }
-
-.logout-btn:hover {
-    background: #c0392b;
+.logout-btn:hover, .admin-link:hover {
+    background: rgba(255,255,255,0.2);
 }
 
 .menu-toggle {
@@ -120,6 +123,7 @@ body {
     padding: 1.5rem;
     margin-bottom: 1.5rem;
     box-shadow: var(--shadow);
+    overflow-x: auto;
 }
 
 .card h2 {
@@ -255,7 +259,16 @@ tr:hover {
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 600px) {
+    table {
+        font-size: 0.85rem;
+    }
+    th, td {
+        white-space: nowrap;
+        padding: 0.5rem;
+    }
+}
+@media (max-width: 900px) {
     .nav-links {
         display: none;
         flex-direction: column;
@@ -265,10 +278,23 @@ tr:hover {
         width: 100%;
         background: var(--primary);
         padding: 1rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        opacity: 0;
+        max-height: 0;
+        overflow: hidden;
+        transition: opacity 0.3s ease, max-height 0.3s ease;
     }
 
     .nav-links.active {
         display: flex;
+        opacity: 1;
+        max-height: 500px;   /* достаточно для всех пунктов */
+    }
+
+    .nav-links a {
+        padding: 0.7rem 1rem;
+        font-size: 1rem;
+        border-bottom: 1px solid rgba(255,255,255,0.1);
     }
 
     .menu-toggle {
@@ -281,6 +307,10 @@ tr:hover {
 
     .login-box {
         margin: 1rem;
+    }
+
+    .nav-right .user-info {
+        display: none;   /* на маленьких экранах имя пользователя можно скрыть, оставив только кнопку выхода */
     }
 }
 

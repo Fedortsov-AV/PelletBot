@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Склад материалов</h1>
+<div class="toolbar">
+    {% if user.role in ('admin', 'manager') %}
+    <a href="/materials/add" class="btn btn-secondary">+ Новый материал</a>
+    <a href="/materials/purchase" class="btn btn-primary">+ Закупка</a>
+    {% endif %}
+</div>
+
+{% if request.query_params.error == 'has_movements' %}
+<div class="error-msg">Нельзя удалить материал, по которому есть движения.</div>
+{% endif %}
+
+<div class="card">
+    <table>
+        <thead>
+            <tr><th>ID</th><th>Наименование</th><th>Остаток</th><th>Закупки</th></tr>
+        </thead>
+        <tbody>
+            {% for mat, stock in materials %}
+            <tr>
+                <td>{{ mat.id }}</td>
+                <td>{{ mat.name }}</td>
+                <td>{{ stock }}</td>
+                <td>
+                    {% if user.role in ('admin', 'manager') %}
+                    <a href="/materials/{{ mat.id }}/movements" class="btn btn-sm">📋</a>
+                    <a href="/materials/{{ mat.id }}/edit" class="btn btn-sm">✏️</a>
+                    {% if user.role == 'admin' %}
+                    <form action="/materials/{{ mat.id }}/delete" method="post" style="display:inline" onsubmit="return confirm('Удалить материал?');">
+                        <button type="submit" class="btn btn-sm btn-danger">🗑️</button>
+                    </form>
+                    {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4">Нет материалов</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Закупка материала</h1>
+<div class="card" style="max-width:500px;">
+    <form method="post">
+        <div class="form-group">
+            <label for="material_id">Материал</label>
+            <select id="material_id" name="material_id" required>
+                <option value="">— Выберите —</option>
+                {% for mat in materials %}
+                <option value="{{ mat.id }}">{{ mat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="quantity">Количество</label>
+            <input type="number" step="0.01" id="quantity" name="quantity" required>
+        </div>
+        <div class="form-group">
+            <label for="unit">Единица измерения</label>
+            <select id="unit" name="unit" required>
+                <option value="шт">шт</option>
+                <option value="м">м</option>
+                <option value="л">л</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="unit_price">Цена за единицу</label>
+            <input type="number" step="0.01" id="unit_price" name="unit_price" required>
+        </div>
+        <div class="form-group">
+            <label>
+                <input type="checkbox" name="create_expense" value="1" checked>
+                Создать расход на сумму <span id="total_price">0</span> руб.
+            </label>
+        </div>
+        <button type="submit" class="btn btn-primary">Оформить закупку</button>
+        <a href="/materials" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+
+<script>
+const qtyInput = document.getElementById('quantity');
+const priceInput = document.getElementById('unit_price');
+const totalSpan = document.getElementById('total_price');
+function updateTotal() {
+    const qty = parseFloat(qtyInput.value) || 0;
+    const price = parseFloat(priceInput.value) || 0;
+    totalSpan.textContent = (qty * price).toFixed(2);
+}
+qtyInput.addEventListener('input', updateTotal);
+priceInput.addEventListener('input', updateTotal);
+</script>
+{% endblock %}

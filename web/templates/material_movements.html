@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Закупки материала: {{ material.name }}</h1>
+
+{% if request.query_params.error == 'partially_used' %}
+<div class="error-msg">Нельзя удалить закупку, которая частично использована.</div>
+{% endif %}
+
+<div class="toolbar">
+    <a href="/materials/purchase" class="btn btn-primary">+ Новая закупка</a>
+    <a href="/materials" class="btn btn-secondary">← Назад к складу</a>
+</div>
+
+<div class="card">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Дата</th>
+                <th>Количество</th>
+                <th>Цена за ед.</th>
+                <th>Остаток</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for m in movements %}
+            <tr>
+                <td>{{ m.id }}</td>
+                <td>{{ m.date.strftime('%d.%m.%Y %H:%M') }}</td>
+                <td>{{ m.quantity }} {{ m.unit }}</td>
+                <td>{{ m.unit_price }}</td>
+                <td>{{ m.remaining_quantity }} {{ m.unit }}</td>
+                <td>
+                    {% if user.role in ('admin', 'manager') %}
+                    <a href="/materials/movements/{{ m.id }}/edit" class="btn btn-sm">✏️</a>
+                    <form action="/materials/movements/{{ m.id }}/delete" method="post" style="display:inline" onsubmit="return confirm('Удалить закупку?');">
+                        <button type="submit" class="btn btn-sm btn-danger">🗑️</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6">Нет закупок</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

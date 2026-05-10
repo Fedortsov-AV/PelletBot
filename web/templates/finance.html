@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Финансы – Расходы</h1>
+
+<div class="toolbar">
+    <form method="get" style="display: flex; gap: 0.5rem; align-items: center;">
+        <select name="category">
+            {% for cat_val, cat_name in categories %}
+            <option value="{{ cat_val }}" {% if cat_val == current_category %}selected{% endif %}>{{ cat_name }}</option>
+            {% endfor %}
+        </select>
+        <button type="submit" class="btn btn-secondary">Фильтр</button>
+    </form>
+    <a href="/finance/add" class="btn btn-primary">+ Добавить расход</a>
+</div>
+
+<div class="card">
+    <p>Общая сумма: <strong>{{ total_amount|round(2) }} руб.</strong></p>
+</div>
+
+<div class="card" style="overflow-x: auto;">
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Дата</th>
+                <th>Категория</th>
+                <th>Назначение</th>
+                <th>Сумма</th>
+                <th>Источник</th>
+                <th>Материал</th>
+                <th>Кол-во</th>
+                <th>Ед.</th>
+                <th>Сотрудник</th>
+                <th>Фасовка</th>
+                <th>Действия</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for exp in expenses %}
+            <tr>
+                <td>{{ exp.id }}</td>
+                <td>{{ exp.date.strftime('%d.%m.%Y %H:%M') if exp.date else '' }}</td>
+                <td>{{ category_labels.get(exp.category, exp.category) }}</td>
+                <td>{{ exp.purpose }}</td>
+                <td>{{ exp.amount }}</td>
+                <td>{{ exp.source }}</td>
+                <td>{{ exp.material.name if exp.material else '' }}</td>
+                <td>{{ exp.quantity if exp.quantity else '' }}</td>
+                <td>{{ exp.unit if exp.unit else '' }}</td>
+                <td>{{ exp.employee.full_name if exp.employee else '' }}</td>
+                <td>{% if exp.packaging %}<a href="/packaging/{{ exp.packaging.id }}">#{{ exp.packaging.id }}</a>{% endif %}</td>
+                <td>
+                    {% if user.role in ('admin', 'manager') %}
+                    <a href="/finance/{{ exp.id }}/edit" class="btn btn-sm">✏️</a>
+                    <form action="/finance/{{ exp.id }}/delete" method="post" style="display:inline" onsubmit="return confirm('Удалить расход?');">
+                        <button type="submit" class="btn btn-sm btn-danger">🗑️</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="12">Нет расходов</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% if total_pages > 1 %}
+<div class="pagination">
+    {% for p in range(1, total_pages + 1) %}
+    <a href="/finance?category={{ current_category }}&page={{ p }}" class="page-link {% if p == page %}active{% endif %}">{{ p }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

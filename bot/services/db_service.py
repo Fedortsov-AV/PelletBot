@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from bot.constants.roles import ADMIN
 from bot.exceptions import InvalidDataError
 from bot.models import User, Product, RawProduct, Shipment, Arrival, Expense, ShipmentItem, Role, RawMaterialStorage, \
-    ProductStorage, Packaging
+    ProductStorage, Packaging, Material, MaterialMovement, PackagingMaterial, CostCalculation
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +27,10 @@ class DBService:
         'cклад сырья': RawMaterialStorage,
         'cклад продукции': ProductStorage,
         'фасовка': Packaging,
-        # 'cклад продукции': ProductStorage,
-
+        'материалы': Material,
+        'движения_материалов': MaterialMovement,
+        'материалы_фасовок': PackagingMaterial,
+        'расчёты_себестоимости': CostCalculation,
     }
 
     @staticmethod

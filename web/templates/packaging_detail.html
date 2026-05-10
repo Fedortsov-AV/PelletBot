@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Фасовка №{{ packaging.id }}</h1>
+
+<div class="card">
+    <p><strong>Дата:</strong> {{ packaging.date.strftime('%d.%m.%Y %H:%M') }}</p>
+    <p><strong>Пользователь:</strong> {{ packaging.user.full_name if packaging.user else '—' }}</p>
+    <p><strong>Сырьё:</strong> {{ packaging.raw_product.name if packaging.raw_product else '—' }}</p>
+    <p><strong>Продукт:</strong> {{ packaging.product.name if packaging.product else '—' }} (вес {{ packaging.product.weight }} кг)</p>
+    <p><strong>Расфасовано пачек:</strong> {{ packaging.amount }}</p>
+    <p><strong>Потрачено сырья:</strong> {{ packaging.used_raw_material }} кг</p>
+    {% if packaging.total_material_cost is not none %}
+    <p><strong>Стоимость материалов:</strong> {{ packaging.total_material_cost|round(2) }} руб.</p>
+    {% endif %}
+</div>
+
+{% if packaging.packaging_materials %}
+<div class="card">
+    <h2>Использованные материалы</h2>
+    <table>
+        <thead>
+            <tr><th>Материал</th><th>Количество</th><th>Ед.</th><th>Стоимость</th></tr>
+        </thead>
+        <tbody>
+            {% for pm in packaging.packaging_materials %}
+            <tr>
+                <td>{{ pm.material.name }}</td>
+                <td>{{ pm.quantity }}</td>
+                <td>{{ pm.unit }}</td>
+                <td>{{ pm.cost|round(2) }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<div style="margin-top: 1rem;">
+    <a href="/packaging" class="btn btn-secondary">← Назад к списку</a>
+</div>
+{% endblock %}

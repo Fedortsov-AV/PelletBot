@@ -24,7 +24,7 @@
         <tbody>
             {% for p in packagings %}
             <tr>
-                <td>{{ p.id }}</td>
+                <td><td><a href="/packaging/{{ p.id }}">{{ p.id }}</a></td></td>
                 <td>{{ p.date.strftime('%d.%m.%Y %H:%M') }}</td>
                 <td>{{ p.user.full_name if p.user else '—' }}</td>
                 <td>{{ p.raw_product.name if p.raw_product else '—' }}</td>

@@ -22,7 +22,7 @@
             <tr>
                 <td>{{ mat.id }}</td>
                 <td>{{ mat.name }}</td>
-                <td>{{ stock }}</td>
+                <td>{{ stock|round(2) }}</td>
                 <td>
                     {% if user.role in ('admin', 'manager') %}
                     <a href="/materials/{{ mat.id }}/movements" class="btn btn-sm">📋</a>

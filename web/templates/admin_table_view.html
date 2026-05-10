@@ -31,4 +31,12 @@
         </tbody>
     </table>
 </div>
+
+{% if total_pages > 1 %}
+<div class="pagination">
+    {% for p in range(1, total_pages + 1) %}
+    <a href="/admin/tables/{{ table_name }}?page={{ p }}" class="page-link {% if p == page %}active{% endif %}">{{ p }}</a>
+    {% endfor %}
+</div>
+{% endif %}
 {% endblock %}

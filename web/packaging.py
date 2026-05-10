@@ -177,12 +177,14 @@ async def edit_packaging_form(
     if current_user.role not in ("admin", "manager"):
         raise HTTPException(status_code=403)
 
+    # Загружаем фасовку с материалами
     result = await db.execute(
         select(Packaging)
         .options(
             selectinload(Packaging.raw_product),
             selectinload(Packaging.product),
-            selectinload(Packaging.user)
+            selectinload(Packaging.user),
+            selectinload(Packaging.packaging_materials).selectinload(PackagingMaterial.material)
         )
         .where(Packaging.id == packaging_id)
     )
@@ -190,14 +192,39 @@ async def edit_packaging_form(
     if not packaging:
         raise HTTPException(status_code=404, detail="Фасовка не найдена")
 
+    # Получаем список всех материалов (кроме наклеек) для добавления новых
+    materials_result = await db.execute(
+        select(Material).where(Material.name != "Наклейка")
+    )
+    all_materials = materials_result.scalars().all()
+
+    # Подготавливаем текущие материалы (исключая наклейки, они авт.)
+    existing_materials = []
+    for pm in packaging.packaging_materials:
+        if pm.material.name == "Наклейка":
+            continue
+        existing_materials.append({
+            "id": pm.material.id,
+            "name": pm.material.name,
+            "quantity": pm.quantity,
+            "unit": pm.unit,
+            "cost": pm.cost
+        })
+
     template = env.get_template("packaging_edit.html")
-    return HTMLResponse(template.render({"request": request, "user": current_user, "packaging": packaging}))
+    return HTMLResponse(template.render({
+        "request": request,
+        "user": current_user,
+        "packaging": packaging,
+        "all_materials": all_materials,
+        "existing_materials": existing_materials
+    }))
 
 
 @router.post("/packaging/{packaging_id}/edit")
 async def edit_packaging_submit(
     packaging_id: int,
-    amount: int = Form(...),
+    request: Request,
     db: AsyncSession = Depends(get_db),
     current_user=Depends(get_current_user)
 ):
@@ -208,10 +235,17 @@ async def edit_packaging_submit(
     if not packaging:
         raise HTTPException(status_code=404, detail="Фасовка не найдена")
 
+    # --- 1. Обработка количества пачек и сырья ---
+    form = await request.form()
+    amount_str = form.get("amount")
+    if not amount_str:
+        return RedirectResponse(url=f"/packaging/{packaging_id}/edit?error=no_amount", status_code=302)
+    new_amount = int(amount_str)
+    if new_amount <= 0:
+        return RedirectResponse(url=f"/packaging/{packaging_id}/edit?error=invalid_amount", status_code=302)
+
     old_amount = packaging.amount
     old_used_raw = packaging.used_raw_material
-    new_amount = amount
-
     product = await db.get(Product, packaging.product_id)
     if not product:
         raise HTTPException(status_code=404, detail="Продукт не найден")
@@ -227,54 +261,58 @@ async def edit_packaging_submit(
     if raw_stock.amount + delta_raw < 0:
         return RedirectResponse(url=f"/packaging/{packaging_id}/edit?error=insufficient_raw", status_code=302)
 
-    # === Откат старых материалов (возврат на склад) ===
-    old_materials = (await db.execute(
-        select(PackagingMaterial).where(PackagingMaterial.packaging_id == packaging_id)
-    )).scalars().all()
-
-    for pm in old_materials:
-        unit_price = pm.cost / pm.quantity if pm.quantity > 0 else 0.0
-        await return_material(db, pm.material_id, pm.quantity, pm.unit, unit_price, packaging_id)
-        await db.delete(pm)
-
-    # === Новое списание материалов ===
-    total_material_cost = 0.0
-    sticker = (await db.execute(select(Material).where(Material.name == "Наклейка"))).scalar_one_or_none()
-    if sticker:
-        try:
-            cost_stickers = await consume_material(db, sticker.id, new_amount, packaging_id)
-            total_material_cost += cost_stickers
-        except ValueError:
-            pass
-
-    # Для других материалов (рукав, пакеты) мы берём их из старого набора, но с новым количеством пачек.
-    # Поскольку мы не можем восстановить выбор пользователя, используем те же material_id, что были в old_materials,
-    # исключая наклейку (уже обработана). Количество рассчитываем как old_quantity * (new_amount / old_amount), если old_amount >0.
-    if old_amount > 0:
-        ratio = new_amount / old_amount
-        for pm in old_materials:
-            if pm.material_id == sticker.id if sticker else -1:
-                continue
-            new_qty = round(pm.quantity * ratio, 2)
-            if new_qty > 0:
-                try:
-                    cost_mat = await consume_material(db, pm.material_id, new_qty, packaging_id)
-                    total_material_cost += cost_mat
-                except ValueError:
-                    pass
-
-    # Обновление складов сырья/продукции
+    # Обновляем сырьё и продукцию
     packaging.amount = new_amount
     packaging.used_raw_material = new_used_raw
-    packaging.total_material_cost = total_material_cost
-
     product_stock = (await db.execute(
         select(ProductStorage).where(ProductStorage.product_id == packaging.product_id)
     )).scalar_one()
     product_stock.amount += delta_product
     raw_stock.amount += delta_raw
 
+    # --- 2. Обработка материалов ---
+    # Удаляем все старые записи материалов и возвращаем их на склад
+    old_materials = (await db.execute(
+        select(PackagingMaterial).where(PackagingMaterial.packaging_id == packaging_id)
+    )).scalars().all()
+    for pm in old_materials:
+        # Возвращаем материал на склад (создаём приходную запись)
+        # Используем среднюю цену из стоимости списания
+        unit_price = pm.cost / pm.quantity if pm.quantity > 0 else 0.0
+        await return_material(db, pm.material_id, pm.quantity, pm.unit, unit_price, packaging_id)
+        await db.delete(pm)
+
+    # Получаем новые материалы из формы
+    material_ids = form.getlist("material_id")
+    material_quantities = form.getlist("material_quantity")
+    total_material_cost = 0.0
+
+    # Наклейки (автоматически, 1 на пачку)
+    sticker = (await db.execute(select(Material).where(Material.name == "Наклейка"))).scalar_one_or_none()
+    if sticker:
+        try:
+            cost_stickers = await consume_material(db, sticker.id, new_amount, packaging_id)
+            total_material_cost += cost_stickers
+        except ValueError:
+            return RedirectResponse(url=f"/packaging/{packaging_id}/edit?error=insufficient_stickers", status_code=302)
+
+    # Остальные материалы из формы
+    for mat_id_str, qty_str in zip(material_ids, material_quantities):
+        if not mat_id_str or not qty_str:
+            continue
+        try:
+            mat_id = int(mat_id_str)
+            qty = float(qty_str)
+            if qty <= 0:
+                continue
+            cost_mat = await consume_material(db, mat_id, qty, packaging_id)
+            total_material_cost += cost_mat
+        except ValueError:
+            return RedirectResponse(url=f"/packaging/{packaging_id}/edit?error=material_not_enough", status_code=302)
+
+    packaging.total_material_cost = total_material_cost
     await db.commit()
+
     return RedirectResponse(url="/packaging", status_code=302)
 
 

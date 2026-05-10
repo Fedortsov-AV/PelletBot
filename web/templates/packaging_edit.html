@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 <h1>Редактировать фасовку №{{ packaging.id }}</h1>
-<div class="card" style="max-width: 500px;">
+<div class="card" style="max-width: 600px;">
     <form method="post" action="/packaging/{{ packaging.id }}/edit">
         <div class="form-group">
             <label>Сырьё</label>
@@ -14,12 +14,110 @@
         <div class="form-group">
             <label for="amount">Количество пачек</label>
             <input type="number" id="amount" name="amount" value="{{ packaging.amount }}" min="1" required>
+            <small id="maxPacksInfo"></small>
         </div>
-        {% if request.query_params.error == 'insufficient_raw' %}
-        <div class="error-msg">Недостаточно сырья на складе для такого количества!</div>
+
+        <!-- Блок материалов -->
+        <h3>Использованные материалы</h3>
+        <p><em>Наклейки списываются автоматически (1 на пачку).</em></p>
+        <div id="materialsContainer">
+            {% for mat in existing_materials %}
+            <div class="item-row">
+                <select name="material_id" class="material-select" style="flex: 2;">
+                    <option value="">— Не выбран —</option>
+                    {% for m in all_materials %}
+                    <option value="{{ m.id }}" {% if m.id == mat.id %}selected{% endif %}>{{ m.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="number" name="material_quantity" value="{{ mat.quantity }}" step="any" min="0.01" class="material-qty" style="flex: 1;">
+                <div class="material-extra" style="display:none;">
+                    <input type="number" placeholder="м/пачку" step="0.01" class="material-per-pack" style="width:80px;">
+                </div>
+                <button type="button" onclick="this.parentElement.remove()" class="btn btn-sm btn-danger">✕</button>
+            </div>
+            {% else %}
+            <div class="item-row">
+                <select name="material_id" class="material-select" style="flex: 2;">
+                    <option value="">— Не выбран —</option>
+                    {% for m in all_materials %}
+                    <option value="{{ m.id }}">{{ m.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="number" name="material_quantity" placeholder="Кол-во" step="any" min="0.01" class="material-qty" style="flex: 1;">
+                <div class="material-extra" style="display:none;">
+                    <input type="number" placeholder="м/пачку" step="0.01" class="material-per-pack" style="width:80px;">
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <button type="button" onclick="addMaterialRow()" class="btn btn-secondary">+ Добавить материал</button>
+
+        {% if request.query_params.error %}
+        <div class="error-msg">
+            {% if request.query_params.error == 'insufficient_raw' %}Недостаточно сырья на складе!
+            {% elif request.query_params.error == 'insufficient_stickers' %}Недостаточно наклеек!
+            {% elif request.query_params.error == 'material_not_enough' %}Недостаточно материала на складе!
+            {% else %}Ошибка: {{ request.query_params.error }}{% endif %}
+        </div>
         {% endif %}
+
         <button type="submit" class="btn btn-primary">Сохранить</button>
         <a href="/packaging" class="btn btn-secondary">Отмена</a>
     </form>
 </div>
+
+<script>
+const amountInput = document.getElementById('amount');
+
+// Обновление максимального количества пачек на основе выбранного продукта
+function updateMaxPacks() {
+    // В режиме редактирования продукт не меняется, поэтому можно просто оставить
+    // Но для совместимости с формой добавления можно оставить, если продукт был бы изменяем.
+    // Здесь продукт зафиксирован, максимальное количество не пересчитываем.
+}
+
+// Авто-расчёт для пакетов/рукава (как в добавлении)
+function updateAutomaticQuantities() {
+    const amount = parseInt(amountInput.value, 10);
+    if (isNaN(amount) || amount <= 0) return;
+    document.querySelectorAll('.item-row').forEach(row => {
+        const select = row.querySelector('.material-select');
+        const qtyInput = row.querySelector('.material-qty');
+        const extraDiv = row.querySelector('.material-extra');
+        const perPackInput = row.querySelector('.material-per-pack');
+        if (!select || !qtyInput) return;
+        const selectedText = select.options[select.selectedIndex]?.textContent.toLowerCase() || '';
+        if (selectedText.includes('пакет')) {
+            qtyInput.value = amount;
+        } else if (selectedText.includes('рукав')) {
+            if (extraDiv) extraDiv.style.display = 'inline';
+            if (perPackInput && perPackInput.value) {
+                qtyInput.value = (amount * parseFloat(perPackInput.value)).toFixed(2);
+            }
+        } else {
+            if (extraDiv) extraDiv.style.display = 'none';
+        }
+    });
+}
+
+amountInput.addEventListener('input', updateAutomaticQuantities);
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('material-select')) updateAutomaticQuantities();
+});
+document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('material-per-pack')) updateAutomaticQuantities();
+});
+
+function addMaterialRow() {
+    const container = document.getElementById('materialsContainer');
+    const template = container.querySelector('.item-row').cloneNode(true);
+    template.querySelector('.material-select').selectedIndex = 0;
+    template.querySelector('.material-qty').value = '';
+    const extraDiv = template.querySelector('.material-extra');
+    if (extraDiv) extraDiv.style.display = 'none';
+    const perPackInput = template.querySelector('.material-per-pack');
+    if (perPackInput) perPackInput.value = '';
+    container.appendChild(template);
+}
+</script>
 {% endblock %}

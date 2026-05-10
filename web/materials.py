@@ -151,6 +151,8 @@ async def purchase_submit(
     unit_price: float = Form(...),
     create_expense: bool = Form(False)
 ):
+    quantity = round(quantity, 2)
+    unit_price = round(unit_price, 2)
     # Проверяем существование материала
     material = await db.get(Material, material_id)
     if not material:
@@ -231,6 +233,8 @@ async def edit_movement_submit(
     quantity: float = Form(...),
     unit_price: float = Form(...)
 ):
+    quantity = round(quantity, 2)
+    unit_price = round(unit_price, 2)
     movement = await db.get(MaterialMovement, movement_id)
     if not movement or movement.type != 'in':
         raise HTTPException(status_code=404)

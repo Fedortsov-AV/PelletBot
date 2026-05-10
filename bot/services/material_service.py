@@ -28,7 +28,7 @@ async def consume_material(session: AsyncSession, material_id: int, needed_qty: 
         if remaining <= 0:
             break
         take = min(batch.remaining_quantity, remaining)
-        cost = take * batch.unit_price
+        cost = round(take * batch.unit_price, 2)
         total_cost += cost
 
         # Создаём запись расхода материала
@@ -56,7 +56,8 @@ async def consume_material(session: AsyncSession, material_id: int, needed_qty: 
         batch.remaining_quantity -= take
         remaining -= take
 
-    if remaining > 0:
+    remaining = round(remaining, 2)
+    if remaining > 0.005:  # всё, что меньше 0.005, считаем нулём
         raise ValueError(f"Недостаточно материала (id={material_id}) на складе. Не хватает {remaining}")
 
     return total_cost

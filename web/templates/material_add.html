@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Новый материал</h1>
+<div class="card" style="max-width:500px;">
+    <form method="post">
+        <div class="form-group">
+            <label for="name">Наименование</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        {% if request.query_params.error == 'exists' %}
+        <div class="error-msg">Материал с таким именем уже существует.</div>
+        {% endif %}
+        <button type="submit" class="btn btn-primary">Создать</button>
+        <a href="/materials" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+{% endblock %}

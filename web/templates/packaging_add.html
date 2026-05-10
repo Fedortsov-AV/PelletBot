@@ -23,6 +23,27 @@
             <input type="number" id="amount" name="amount" min="1" required>
             <small id="maxPacksInfo"></small>
         </div>
+
+        <!-- Блок материалов -->
+        <h3>Использованные материалы</h3>
+        <p><em>Наклейки списываются автоматически (1 на пачку).</em></p>
+        <div id="materialsContainer">
+            <!-- Первая строка пустая для добавления -->
+            <div class="item-row">
+                <select name="material_id" class="material-select" style="flex: 2;">
+                    <option value="">— Не выбран —</option>
+                    {% for mat in materials %}
+                    <option value="{{ mat.id }}">{{ mat.name }}</option>
+                    {% endfor %}
+                </select>
+                <input type="number" name="material_quantity" placeholder="Кол-во" min="0.01" step="any" class="material-qty" style="flex: 1;">
+                <div class="material-extra" style="display:none;">
+                    <input type="number" placeholder="м/пачку" step="0.01" class="material-per-pack" style="width:80px;">
+                </div>
+            </div>
+        </div>
+        <button type="button" onclick="addMaterialRow()" class="btn btn-secondary">+ Добавить материал</button>
+
         {% if request.query_params.error == 'insufficient_raw' %}
         <div class="error-msg">Недостаточно сырья на складе!</div>
         {% endif %}
@@ -32,17 +53,18 @@
 </div>
 
 <script>
+const amountInput = document.getElementById('amount');
+
+// Загрузка продуктов при выборе сырья
 async function loadProducts(rawId) {
     const productSelect = document.getElementById('product_id');
     const maxInfo = document.getElementById('maxPacksInfo');
     productSelect.disabled = true;
     productSelect.innerHTML = '<option value="">— Загрузка... —</option>';
-
     if (!rawId) {
         productSelect.innerHTML = '<option value="">— Сначала выберите сырьё —</option>';
         return;
     }
-
     try {
         const resp = await fetch(`/api/products-for-raw/${rawId}`);
         const products = await resp.json();
@@ -61,7 +83,8 @@ async function loadProducts(rawId) {
     }
 }
 
-document.getElementById('amount').addEventListener('input', function() {
+// Обновление максимального количества пачек
+amountInput.addEventListener('input', function() {
     const productSelect = document.getElementById('product_id');
     const selectedOption = productSelect.options[productSelect.selectedIndex];
     if (selectedOption && selectedOption.dataset.weight) {
@@ -75,6 +98,59 @@ document.getElementById('amount').addEventListener('input', function() {
             document.getElementById('maxPacksInfo').textContent = '';
         }
     }
+    // Автообновление количества для материалов типа "пакет"
+    updateAutomaticQuantities();
 });
+
+// Функция обновления количества в строках, где материал – пакет или рукав
+function updateAutomaticQuantities() {
+    const amount = parseInt(amountInput.value, 10);
+    if (isNaN(amount) || amount <= 0) return;
+    document.querySelectorAll('.item-row').forEach(row => {
+        const select = row.querySelector('.material-select');
+        const qtyInput = row.querySelector('.material-qty');
+        const extraDiv = row.querySelector('.material-extra');
+        const perPackInput = row.querySelector('.material-per-pack');
+        if (!select || !qtyInput) return;
+        const selectedText = select.options[select.selectedIndex]?.textContent.toLowerCase() || '';
+        if (selectedText.includes('пакет')) {
+            qtyInput.value = amount;
+        } else if (selectedText.includes('рукав')) {
+            if (extraDiv) extraDiv.style.display = 'inline';
+            if (perPackInput && perPackInput.value) {
+                qtyInput.value = (amount * parseFloat(perPackInput.value)).toFixed(2);
+            }
+        } else {
+            if (extraDiv) extraDiv.style.display = 'none';
+        }
+    });
+}
+
+// Обработчик изменения выбора материала в любой строке
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('material-select')) {
+        updateAutomaticQuantities();
+    }
+});
+
+// Обработчик изменения расхода рукава
+document.addEventListener('input', function(e) {
+    if (e.target.classList.contains('material-per-pack')) {
+        updateAutomaticQuantities();
+    }
+});
+
+// Добавление новой строки материала
+function addMaterialRow() {
+    const container = document.getElementById('materialsContainer');
+    const template = container.querySelector('.item-row').cloneNode(true);
+    template.querySelector('.material-select').selectedIndex = 0;
+    template.querySelector('.material-qty').value = '';
+    const extraDiv = template.querySelector('.material-extra');
+    if (extraDiv) extraDiv.style.display = 'none';
+    const perPackInput = template.querySelector('.material-per-pack');
+    if (perPackInput) perPackInput.value = '';
+    container.appendChild(template);
+}
 </script>
 {% endblock %}

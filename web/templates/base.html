@@ -10,18 +10,28 @@
     <nav class="navbar">
         <div class="nav-left">
             <a href="/dashboard" class="nav-brand">PelletBot</a>
-            <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+            <button class="menu-toggle" onclick="toggleMenu()" aria-label="Меню">☰</button>
             <div class="nav-links" id="navLinks">
+                <!-- Основные операции -->
                 <a href="/arrivals">Приходы</a>
                 <a href="/packaging">Фасовка</a>
                 <a href="/shipments">Отгрузки</a>
+
+                <!-- Склад и затраты -->
+                {% if user.role in ('admin','manager') %}
+                <a href="/materials">Склад материалов</a>
+                {% endif %}
                 <a href="/finance">Финансы</a>
-                <a href="/stats">Статистика</a>
+
+                <!-- Аналитика -->
+                {% if user.role in ('admin','manager') %}
+                <a href="/cost-calculation">Себестоимость</a>
+                {% endif %}
             </div>
         </div>
         <div class="nav-right">
             {% if user.role == 'admin' %}
-            <a href="/admin">Админка</a>
+            <a href="/admin" class="admin-link">⚙️ Админка</a>
             {% endif %}
             {% if user %}
             <span class="user-info">{{ user.full_name }} ({{ user.role }})</span>

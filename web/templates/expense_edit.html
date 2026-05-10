@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Редактировать расход #{{ expense.id }}</h1>
+<div class="card" style="max-width:600px;">
+    <form method="post">
+        <div class="form-group">
+            <label for="amount">Сумма</label>
+            <input type="number" step="0.01" id="amount" name="amount" value="{{ expense.amount }}" required>
+        </div>
+        <div class="form-group">
+            <label for="category">Категория</label>
+            <select id="category" name="category" required onchange="toggleFields()">
+                {% for cat_val, cat_name in categories %}
+                <option value="{{ cat_val }}" {% if cat_val == expense.category %}selected{% endif %}>{{ cat_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="purpose">Назначение</label>
+            <input type="text" id="purpose" name="purpose" value="{{ expense.purpose or '' }}">
+        </div>
+        <div class="form-group">
+            <label for="source">Источник средств</label>
+            <select id="source" name="source">
+                <option value="собственные средства" {% if expense.source == 'собственные средства' %}selected{% endif %}>Собственные средства</option>
+                <option value="касса" {% if expense.source == 'касса' %}selected{% endif %}>Касса</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="expense_date">Дата</label>
+            <input type="datetime-local" id="expense_date" name="expense_date" value="{{ expense.date.strftime('%Y-%m-%dT%H:%M') if expense.date else '' }}">
+        </div>
+
+        <div id="material_fields" style="display: none;">
+            <div class="form-group">
+                <label for="material_id">Материал</label>
+                <select id="material_id" name="material_id">
+                    <option value="">— Не выбран —</option>
+                    {% for mat in materials %}
+                    <option value="{{ mat.id }}" {% if mat.id == expense.material_id %}selected{% endif %}>{{ mat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="quantity">Количество</label>
+                <input type="number" step="0.01" id="quantity" name="quantity" value="{{ expense.quantity or '' }}">
+            </div>
+            <div class="form-group">
+                <label for="unit">Единица измерения</label>
+                <select id="unit" name="unit">
+                    <option value="">—</option>
+                    <option value="шт" {% if expense.unit == 'шт' %}selected{% endif %}>шт</option>
+                    <option value="м" {% if expense.unit == 'м' %}selected{% endif %}>м</option>
+                    <option value="л" {% if expense.unit == 'л' %}selected{% endif %}>л</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="salary_fields" style="display: none;">
+            <div class="form-group">
+                <label for="hours_quantity">Отработано часов</label>
+                <input type="number" step="0.01" id="hours_quantity" name="quantity" value="{{ expense.quantity or '' }}">
+                <input type="hidden" name="unit" value="ч">
+            </div>
+        </div>
+
+        <div id="packaging_fields" style="display: none;">
+            <div class="form-group">
+                <label for="packaging_id">Привязать к фасовке</label>
+                <select id="packaging_id" name="packaging_id">
+                    <option value="">— Нет —</option>
+                    {% for pkg in packagings %}
+                    <option value="{{ pkg.id }}" {% if pkg.id == expense.packaging_id %}selected{% endif %}>#{{ pkg.id }} от {{ pkg.date.strftime('%d.%m.%Y') }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+        <a href="/finance" class="btn btn-secondary">Отмена</a>
+    </form>
+</div>
+
+<script>
+function toggleFields() {
+    const cat = document.getElementById('category').value;
+    document.getElementById('material_fields').style.display =
+        (cat === 'packaging_material' || cat === 'raw_material_purchase' || cat === 'fuel') ? 'block' : 'none';
+    document.getElementById('salary_fields').style.display =
+        (cat === 'salary') ? 'block' : 'none';
+    document.getElementById('packaging_fields').style.display =
+        (cat === 'salary' || cat === 'packaging_material' || cat === 'fuel') ? 'block' : 'none';
+}
+toggleFields();
+</script>
+{% endblock %}

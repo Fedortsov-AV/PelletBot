@@ -25,6 +25,7 @@
 
                 <!-- Аналитика -->
                 {% if user.role in ('admin','manager') %}
+                <a href="/stats">Статистика</a>
                 <a href="/cost-calculation">Себестоимость</a>
                 {% endif %}
             </div>
@@ -49,5 +50,6 @@
             document.getElementById("navLinks").classList.toggle("active");
         }
     </script>
+{% block scripts %}{% endblock %}
 </body>
 </html>
